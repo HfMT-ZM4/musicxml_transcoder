@@ -20,9 +20,9 @@ function score_attributes()
     this["COMPOSER"] = "";
     this["COPYRIGHT"] = "";
     this["WIDTH"] = "800";
-    this["HEIGHT"] = "1000";
-    this["STAFFS"] = "13";
-    this["NUMTRACKSPERSTAFF"] = "2";
+    this["HEIGHT"] = "800";
+    this["STAFFS"] = "1";
+    this["NUMTRACKSPERSTAFF"] = "4";
     this["InstrumentNamesVisible"] = "false";
     this["TempoVisible"] = "false";
     this["StaffNumbersVisible"] = "true";
@@ -156,7 +156,7 @@ function scoresection(attributes)
     this["$"] = attributes;
 }
 
-function measure_attributes(WIDTH = 1523, WIDTHSETBYHAND = false, TIMESIG = "4 4", TIMESIGSETBYHAND = false, TEMPO = 60.0, TEMPOSETBYHAND = false, REPEATSTART = false, REPEATEND = false, NUMREPEATS = 1, BARLINE = "SINGLE", MEASURETEXT = "", MEASURETEXTX = 48, MEASURETEXTY = 48)
+function measure_attributes(WIDTH = 1523, WIDTHSETBYHAND = false, TIMESIG = "4 4", TIMESIGSETBYHAND = false, TEMPO = 60.0, TEMPOSETBYHAND = false, REPEATSTART = false, REPEATEND = false, NUMREPEATS = 1, BARLINE = "SINGLE", MEASURETEXT = "", MEASURETEXTX = 48, MEASURETEXTY = 48, MEASURELEFTMARGIN = 50.0)
 {
     this["WIDTH"] = WIDTH;
     this["WIDTHSETBYHAND"] = WIDTHSETBYHAND;
@@ -171,6 +171,7 @@ function measure_attributes(WIDTH = 1523, WIDTHSETBYHAND = false, TIMESIG = "4 4
     this["MEASURETEXT"] = MEASURETEXT;
     this["MEASURETEXTX"] = MEASURETEXTX;
     this["MEASURETEXTY"] = MEASURETEXTY;
+    this["MEASURELEFTMARGIN"] = MEASURELEFTMARGIN;
 }
 
 function jmsl_measure(attributes, staff = [])
@@ -179,18 +180,18 @@ function jmsl_measure(attributes, staff = [])
     this["staff"] = [];
 }
 
-function staff_attributes(INDEX, CLEF, CLEFSETBYHAND = false, INSTRUMENTINDEX, INSINDEXSETBYHAND = false, KEYSIGTYPE, KEYSIGNUMACC, KEYSIGSETBYHAND = false, EXTENDEDLINESABOVE = 0, EXTENDEDLINESBELOW = 0)
+function staff_attributes(INDEX = 0, CLEF = 0, CLEFSETBYHAND = false, INSTRUMENTINDEX = 0, INSINDEXSETBYHAND = false, KEYSIGTYPE = 0, KEYSIGNUMACC = 0, KEYSIGSETBYHAND = false, EXTENDEDLINESABOVE = 0, EXTENDEDLINESBELOW = 0)
 {
-    this["INDEX"] = "0"
-    this["CLEF"] = "0"
-    this["CLEFSETBYHAND"] = "false"
-    this["INSTRUMENTINDEX"] = "0"
-    this["INSINDEXSETBYHAND"] = "false"
-    this["KEYSIGTYPE"] = "1"
-    this["KEYSIGNUMACC"] = "0"
-    this["KEYSIGSETBYHAND"] = "false"
-    this["EXTENDEDLINESABOVE"] = "0"
-    this["EXTENDEDLINESBELOW"] = "0"
+    this["INDEX"] = INDEX
+    this["CLEF"] = CLEF
+    this["CLEFSETBYHAND"] = CLEFSETBYHAND
+    this["INSTRUMENTINDEX"] = INSTRUMENTINDEX
+    this["INSINDEXSETBYHAND"] = INSINDEXSETBYHAND
+    this["KEYSIGTYPE"] = KEYSIGTYPE
+    this["KEYSIGNUMACC"] = KEYSIGNUMACC
+    this["KEYSIGSETBYHAND"] = KEYSIGSETBYHAND
+    this["EXTENDEDLINESABOVE"] = EXTENDEDLINESABOVE
+    this["EXTENDEDLINESBELOW"] = EXTENDEDLINESBELOW
 }
 
 function staff(attributes, track = [])
@@ -210,33 +211,73 @@ function track(attributes, note = [])
     this["note"] = note;
 }
 
+// NOTEDUR="2"
+// TUPLET="0"
+// DOTS="0"
+// ACCINFO="0"
+// DURATION="1.0"
+// PITCH="60.0"
+// VELOCITY="90.0"
+// HOLD="1.0"
+// BEAMEDOUT="false"
+// GLISSOUT="false"
+// TIEDOUT="false"
+// ACCPREF="0"
+// ACCVISPOLICY="0"
+// ALTENHARMONIC="false"
+// DYN="0"
+// SLUROUT="false"
+// ISGRACENOTE="false"
+// GRACENOTESEPARATIONSCALER="2.0"
+// LEDGERLINESVISIBLE="true"
+// WEDGE="none"
+// OTTAVA="none"
+// MARK="0"
+// TEXTOFFSETX="0"
+// TEXTOFFSETY="0"
+// NOTEHEAD="0"
+// NOTEHEADSCALE="1.0"
+// VISIBLE="true"
+// NOTEHEADVISIBLE="true"
+// STEMVISIBLE="true"
+// OVERRIDELEVEL="-1"
+// ISOVERRIDELEVEL="false"
+// STEMINFOOVERRIDE="false"
+// STEMINFO="1"
+// TEXT=""
+
 function note_attributes(
-    NOTEDUR,
+    NOTEDUR = 0,
     TUPLET = 0,
     DOTS = 0,
     ACCINFO = 2,
-    DURATION,
-    PITCH,
-    VELOCITY,
-    HOLD,
+    DURATION = 1.0,
+    PITCH = 60.0,
+    VELOCITY = 90.0,
+    HOLD = 1.0,
     BEAMEDOUT = true,
     GLISSOUT = false,
     TIEDOUT = false,
     ACCPREF = 1,
     ACCVISPOLICY = 0,
     ALTENHARMONIC = false,
-    DYN,
+    DYN = 0,
     SLUROUT = false,
     ISGRACENOTE = false,
+    GRACENOTESEPARATIONSCALER=2.0,
+    LEDGERLINESVISIBLE=true,
     WEDGE = "none",
     OTTAVA = "none",
     MARK = 0,
     TEXTOFFSETX = 0,
     TEXTOFFSETY = 0,
     NOTEHEAD = 0,
+    NOTEHEADSCALE=1.0,
     VISIBLE = true,
     NOTEHEADVISIBLE = true,
     STEMVISIBLE = true,
+    OVERRIDELEVEL=-1,
+    ISOVERRIDELEVEL=false,
     STEMINFOOVERRIDE = false,
     STEMINFO = 2,
     TEXT = "")
@@ -258,18 +299,29 @@ function note_attributes(
     this["DYN"] = DYN
     this["SLUROUT"] = SLUROUT
     this["ISGRACENOTE"] = ISGRACENOTE
+    this["GRACENOTESEPARATIONSCALER"] = GRACENOTESEPARATIONSCALER
+    this["LEDGERLINESVISIBLE"] = LEDGERLINESVISIBLE
     this["WEDGE"] = WEDGE
     this["OTTAVA"] = OTTAVA
     this["MARK"] = MARK
     this["TEXTOFFSETX"] = TEXTOFFSETX
     this["TEXTOFFSETY"] = TEXTOFFSETY
     this["NOTEHEAD"] = NOTEHEAD
+    this["NOTEHEADSCALE"] = NOTEHEADSCALE
     this["VISIBLE"] = VISIBLE
     this["NOTEHEADVISIBLE"] = NOTEHEADVISIBLE
-    this["STEMVISIBLE"] = STEMISVISIBLE
+    this["STEMVISIBLE"] = STEMVISIBLE
+    this["OVERRIDELEVEL"] = OVERRIDELEVEL
+    this["ISOVERRIDELEVEL"] = ISOVERRIDELEVEL
     this["STEMINFOOVERRIDE"] = STEMINFOOVERRIDE
     this["STEMINFO"] = STEMINFO
     this["TEXT"] = TEXT
+}
+
+function jmsl_note(attributes, dim = [])
+{
+    this["$"] = attributes,
+    this["dim"] = dim
 }
 
 function note_dim_attributes(index, value, name)
@@ -282,6 +334,68 @@ function note_dim_attributes(index, value, name)
 function note_dim(attributes)
 {
     this["$"] = attributes;
+}
+
+function note_to_midi(step, alter, octave)
+{
+    var midi = 0
+    switch(step){
+    case "C":
+	break;
+    case "D":
+	midi += 2
+	break;
+    case "E":
+	midi += 4
+	break;
+    case "F":
+	midi += 5
+	break;
+    case "G":
+	midi += 7
+	break;
+    case "A":
+	midi += 9
+	break;
+    case "B":
+	midi += 11
+	break;
+    }
+    if(typeof alter == "string"){
+	alter = Number(alter)
+    }
+    if(typeof octave == "string"){
+	octave = Number(octave)
+    }
+    midi += alter
+    midi += (octave + 1) * 12
+    return midi    
+}
+
+function notetype_to_int(notetype)
+{
+    switch(notetype){
+    case "breve":
+	return -1;
+    case "whole":
+	return 0
+    case "half":
+	return 1;
+    case "quarter":
+	return 2;
+    case "eighth":
+	return 3
+    case "16th":
+	return 4;
+    case "32nd":
+	return 5;
+    case "64th":
+	return 6;
+    case "128th":
+	return 7;
+    default:
+	throw "unknown note type";
+    }
 }
 
 function musicxml_score_timewise_to_jmsl(musicxml_json, jmsl_json)
@@ -356,13 +470,15 @@ function musicxml_part_list_to_jmsl(musicxml_json, jmsl_json)
 
 function musicxml_measure_to_jmsl(musicxml_json, jmsl_json)
 {
-    console.log("measure: ");
-    console.log(musicxml_json);
     var measure = new jmsl_measure(new measure_attributes())
     _musicxml_transcoder(musicxml_json,
 			 jmsl_json,
 			 {
 			     'part' : function(musicxml_json, jmsl_json){
+				 var tracks = [];
+				 [0, 1, 2, 3].forEach(x => tracks.push(new track(new track_attributes(x))))
+				 measure.staff.push(new staff(new staff_attributes(measure.staff.length), tracks))
+				 var divisions = 32;
 				 _musicxml_transcoder(musicxml_json,
 						      jmsl_json,
 						      {
@@ -370,23 +486,115 @@ function musicxml_measure_to_jmsl(musicxml_json, jmsl_json)
 							      _musicxml_transcoder(musicxml_json,
 										   jmsl_json,
 										   {
-										       'divisions' : function(){},
-										       'key' : function(){},
-										       'time' : function(){},
-										       'clef' : function(){}
+										       'divisions' : function(musicxml_json, jmsl_json){divisions = Number(musicxml_json)},
+										       'key' : function(musicxml_json, jmsl_json){
+											   _musicxml_transcoder(musicxml_json,
+														jmsl_json,
+														{
+														    'key-step' : function(musicxml_json, jmsl_json){},
+														    'key-alter' : function(musicxml_json, jmsl_json){},
+														    'key-accidental' : function(musicxml_json, jmsl_json){},
+														    //'cancel' : function(musicxml_json, jmsl_json){},
+														    'fifths' : function(musicxml_json, jmsl_json){
+															var i = Number(musicxml_json);
+															if(i < 0){
+															    measure.staff[measure.staff.length - 1]['$'].KEYSIGTYPE = 1;
+															}else{
+															    measure.staff[measure.staff.length - 1]['$'].KEYSIGTYPE = 0;
+															}
+															measure.staff[measure.staff.length - 1]['$'].KEYSIGNUMACC = Math.abs(i);
+														    },
+														    //'mode' : function(musicxml_json, jmsl_json){},
+														    'key-octave' : function(musicxml_json, jmsl_json){}
+														})},
+										       'time' : function(musicxml_json, jmsl_json){
+											   var beats = 4;
+											   var beat_type = 4;
+											   _musicxml_transcoder(musicxml_json,
+														jmsl_json,
+														{
+														    'beats' : function(musicxml_json, jmsl_json){beats = Number(musicxml_json)},
+														    'beat-type' : function(musicxml_json, jmsl_json){beat_type = Number(musicxml_json)}
+														});
+											   measure['$'].TIMESIG = beats + " " + beat_type;
+										       },
+										       'clef' : function(musicxml_json, jmsl_json){
+											   var sign = "G"
+											   var line = "2"
+											   _musicxml_transcoder(musicxml_json,
+														jmsl_json,
+														{
+														    'sign' : function(musicxml_json, jmsl_json){sign = musicxml_json},
+														    'line' : function(musicxml_json, jmsl_json){line = musicxml_json}
+														})
+											   var clef = 0
+											   if(sign == "G"){
+											       clef = 0;
+											   }else if(sign == "C"){
+											       if(line == "3"){
+												   clef = 1; // alto
+											       }else if(line == "4"){
+												   clef = 2; // tenor
+											       }else{
+												   console.log("unsupported placement of clef " + sign + " on line " + line);
+											       }
+											   }else if(sign == "F"){
+											       clef = 3; // bass
+											   }else if(sign == "percussion"){
+											       clef = 4; 
+											   }else{
+											       console.log("unhandled clef: sign = " + sign + " line: " + line);
+											   }
+											   measure.staff[measure.staff.length - 1]['$'].CLEF = clef;
+										       }
 										   })
 							  },
-							  'direction' : function(){},
-							  'note' : function(){}
+							  'direction' : function(musicxml_json, jmsl_json){},
+							  'note' : function(musicxml_json, jmsl_json){
+							      var track = 0;
+							      var dims = [new note_dim(new note_dim_attributes(4, 0.0, "EventFlag")),
+									  new note_dim(new note_dim_attributes(5, -1.0, "originalPitch")),
+									  new note_dim(new note_dim_attributes(6, -1.0, "index"))]
+							      var note = new jmsl_note(new note_attributes(), dims);
+							      _musicxml_transcoder(musicxml_json,
+										   jmsl_json,
+										   {
+										       'pitch' : function(musicxml_json, jmsl_json){
+											   var step;
+											   var alter = 0
+											   var octave;
+											   _musicxml_transcoder(musicxml_json,
+														jmsl_json,
+														{
+														    'step' : function(musicxml_json, jmsl_json){step = musicxml_json},
+														    'alter' : function(musicxml_json, jmsl_json){alter = musicxml_json},
+														    'octave' : function(musicxml_json, jmsl_json){octave = musicxml_json}
+														})
+											   note['$'].PITCH = note_to_midi(step, alter, octave)
+										       },
+										       'duration' : function(musicxml_json, jmsl_json){note['$'].DURATION = Number(musicxml_json) / divisions},
+										       'voice' : function(musicxml_json, jmsl_json){track = musicxml_json - 1},
+										       'type' : function(musicxml_json, jmsl_json){note['$'].NOTEDUR = notetype_to_int(musicxml_json)},
+										       'notations' : function(musicxml_json, jmsl_json){}
+										   })
+							      measure.staff[measure.staff.length - 1].track[track].note.push(note)
+							  }
 						      })
 			     }
 			 })
+    jmsl_json.jmslscoredoc.score[0].measure.push(measure)
 }
 
 function default_elem_handler(key, musicxml_json, output_obj)
 {
-    console.log("skipping elem:        " + key);
+    //console.log("skipping elem:        " + key);
     //this.transcode(musicxml_json, output_obj);
+    if(output_obj.skipped_elems == undefined){
+	output_obj.skipped_elems = [];
+    }
+    var o = {}
+    o[key] = musicxml_json
+    output_obj.skipped_elems.push(o)
 }
 
 var musicxml_callbacks =
@@ -460,6 +668,8 @@ function __main()
 		    }else if(musicxmljs['score-partwise'] != undefined){
 			musicxmljs = partwise_to_timewise(musicxmljs);
 			var jmsljs = musicxml2jmsl_transcoder(musicxmljs)
+			console.error("skipped elements: \n" + JSON.stringify(jmsljs.skipped_elems, null, 2))
+			delete jmsljs['skipped_elems']
 			var builder = new xml2js.Builder()
 			var jmslxml = builder.buildObject(jmsljs)
 			console.log(jmslxml)
