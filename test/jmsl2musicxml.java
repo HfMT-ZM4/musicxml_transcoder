@@ -7,14 +7,17 @@ public class JMSL2MusicXML
 	public static void main(String[] args)
 	{
 		if(args.length < 3){
-			System.out.println("must supply the name of an input folder, an output folder, and a filename");
+			System.out.print("must supply the name of an input ");
+			System.out.print("folder, an output folder, ");
+			System.out.println("and a filename");
 			return;
 		}
 		Score score = null;
 		try{
 			score = Score.load(args[0] + "/" + args[2]);
 		}catch(java.io.IOException e){
-			System.out.println("couldn't load " + args[0] + "/" + args[2] + ". caught exception:");
+			System.out.println("couldn't load " + args[0] + "/" +
+					   args[2] + ". caught exception:");
 			System.out.println(e.toString());
 			return;
 		}
@@ -22,7 +25,8 @@ public class JMSL2MusicXML
 		try{
 			pw = new PrintWriter(args[1] + "/" + args[2]);
 		}catch(java.io.FileNotFoundException e){
-			System.out.println("couldn't create file test.xml for writing. caught exception: ");
+			System.out.print("couldn't create file test.xml ");
+			System.out.println("for writing. caught exception: ");
 			System.out.println(e.toString());
 			return;
 		}
