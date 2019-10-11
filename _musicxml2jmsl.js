@@ -1,6 +1,6 @@
 'use strict'
 
-const fs = require('fs');
+const transcoder = require('./_musicxml_transcoder.js')
 const xml2js = require('xml2js');
 
 function doc(jmslscoredoc = {})
@@ -429,16 +429,6 @@ function push_note(track, note)
     track.note.push(note);
 }
 
-function default_elem_handler(key, mxml, output_obj)
-{
-    if(output_obj.skipped_elems == undefined){
-	output_obj.skipped_elems = [];
-    }
-    var o = {}
-    o[key] = mxml
-    output_obj.skipped_elems.push(o)
-}
-
 var musicxml_callbacks =
     {
 	'score-timewise' : (mxml,jmsl)=>{
@@ -454,11 +444,11 @@ var musicxml_callbacks =
 						 [ new staffspacing(new staffspacing_attrs()) ],
 						 ss,
 						)]
-	    tcd(mxml,
+	    transcoder.transcode(mxml,
 		jmsl,
 		{
 		    'work' : function (mxml, jmsl){
-			tcd(mxml,
+			transcoder.transcode(mxml,
 			    jmsl,
 			    {
 				'work-title' : (mxml,jmsl)=>{
@@ -468,11 +458,11 @@ var musicxml_callbacks =
 		    },
 		    'identification' : undefined,
 		    'part-list' : function (mxml, jmsl){
-			tcd(mxml,
+			transcoder.transcode(mxml,
 			    jmsl,
 			    {
 				'score-part' : (mxml,jmsl)=>{
-				    tcd(mxml,
+				    transcoder.transcode(mxml,
 					jmsl,
 					{
 					    '$' : undefined,
@@ -494,7 +484,7 @@ var musicxml_callbacks =
 		    },
 		    'measure' : function (mxml, jmsl){
 			var measure = new jmsl_measure(new measure_attrs())
-			tcd(mxml,
+			transcoder.transcode(mxml,
 			    jmsl,
 			    {
 				'part' : (mxml,jmsl)=>{
@@ -502,17 +492,17 @@ var musicxml_callbacks =
 				    [0, 1, 2, 3].forEach(x => tracks.push(new track(new track_attrs(x))))
 				    measure.staff.push(new staff(new staff_attrs(measure.staff.length), tracks))
 				    var divisions = 32;
-				    tcd(mxml,
+				    transcoder.transcode(mxml,
 					jmsl,
 					{
 					    '$' : undefined,
 					    'attributes' : (mxml,jmsl)=>{
-						tcd(mxml,
+						transcoder.transcode(mxml,
 						    jmsl,
 						    {
 							'divisions' : (mxml,jmsl)=>{divisions = Number(mxml)},
 							'key' : (mxml,jmsl)=>{
-							    tcd(mxml,
+							    transcoder.transcode(mxml,
 								jmsl,
 								{
 								    'key-step' : undefined,
@@ -540,7 +530,7 @@ var musicxml_callbacks =
 							'time' : (mxml,jmsl)=>{
 							    var beats = 4;
 							    var beat_type = 4;
-							    tcd(mxml,
+							    transcoder.transcode(mxml,
 								jmsl,
 								{
 								    'beats' : (mxml,jmsl)=>{beats = Number(mxml)},
@@ -551,7 +541,7 @@ var musicxml_callbacks =
 							'clef' : (mxml,jmsl)=>{
 							    var sign = "G"
 							    var line = "2"
-							    tcd(mxml,
+							    transcoder.transcode(mxml,
 								jmsl,
 								{
 								    'sign' : (mxml,jmsl)=>{sign = mxml},
@@ -591,14 +581,14 @@ var musicxml_callbacks =
 							    new note_dim(new note_dim_attrs(6, -1.0, "index"))]
 						var note = new jmsl_note(new note_attrs(), dims);
 						var chord = false;
-						tcd(mxml,
+						transcoder.transcode(mxml,
 						    jmsl,
 						    {
 							'pitch' : (mxml,jmsl)=>{
 							    var step;
 							    var alter = 0
 							    var octave;
-							    tcd(mxml,
+							    transcoder.transcode(mxml,
 								jmsl,
 								{
 								    'step' : (mxml,jmsl)=>{step = mxml},
@@ -616,7 +606,7 @@ var musicxml_callbacks =
 							},
 							'accidental' : undefined,
 							'notations' : (mxml,jmsl)=>{
-							    tcd(mxml,
+							    transcoder.transcode(mxml,
 								jmsl,
 								{
 								    'footnote' : undefined,
@@ -661,66 +651,9 @@ var musicxml_callbacks =
 	}
     }
 
-function tcd(mxml,
-	     output_obj,
-	     callbacks,
-	     default_elem_handler_fn = default_elem_handler)
-{
-    var _this = this
-    Object.keys(mxml).forEach(function(k){
-	if(Array.isArray(mxml[k]) == true){
-	    mxml[k].forEach(function(o){
-		if(callbacks[k] == undefined){
-		    default_elem_handler(k, o, output_obj)
-		}else{
-	    	    callbacks[k](o, output_obj);
-		}
-	    })
-	}else{
-	    if(callbacks[k] == undefined){
-		default_elem_handler(k, mxml[k], output_obj)
-	    }else{
-		callbacks[k](mxml[k], output_obj)
-	    }
-	}
-    })
-    return output_obj
-}
-
 function musicxml2jmsl_transcoder(mxml)
 {
-    return tcd(mxml, new doc(), musicxml_callbacks);
-}
-
-function timewise_to_partwise(tw)
-{
-    // not sure we need this
-}
-
-function partwise_to_timewise(pw)
-{
-    var tw = JSON.parse(JSON.stringify(pw));
-    Object.defineProperty(tw, 'score-timewise',
-			  Object.getOwnPropertyDescriptor(tw,
-							  'score-partwise'));
-    delete tw['score-partwise'];
-    var part = JSON.parse(JSON.stringify(pw['score-partwise'].part));
-    delete tw['score-timewise'].part;
-    tw['score-timewise'].measure = new Array(part[0].measure.length);
-    part[0].measure.forEach(function(pm, i){
-	tw['score-timewise'].measure[i] = {
-	    '$' : pm['$'],
-	    'part' : new Array(part.length)
-	};
-    })
-
-    tw['score-timewise'].measure.forEach(function(m, i){
-	part.forEach(function(p, j){
-	    m.part[j] = JSON.parse(JSON.stringify(p.measure[i]));
-	    m.part[j]['$'] = JSON.parse(JSON.stringify(p['$']));
-	})
-    })
-    return tw;
+    return transcoder.transcode(mxml, new doc(), musicxml_callbacks);
 }
 
 function musicxml2jmsl(musicxml_str, callback)
@@ -729,7 +662,7 @@ function musicxml2jmsl(musicxml_str, callback)
 	if(!err){
 	    if(mxml['score-timewise'] != undefined){
 	    }else if(mxml['score-partwise'] != undefined){
-		mxml = partwise_to_timewise(mxml);
+		mxml = transcoder.partwise_to_timewise(mxml);
 	    }else{
 		console.error("not a musicxml score.");
 		return;
@@ -752,19 +685,8 @@ function musicxml2jmsl(musicxml_str, callback)
     });
 }
 
-function read_musicxml(filename, callback)
-{
-    fs.readFile(filename, {encoding: 'utf-8'}, function(err, musicxml_str){
-	if(!err){
-	    callback(musicxml_str);
-	}else{
-	    console.error("couldn't read " + filename);
-	}
-    })
-}
-
 exports.musicxml2jmsl = musicxml2jmsl
-exports.read_musicxml = read_musicxml
+exports.read_musicxml = transcoder.read_musicxml
 
 /*
 testing:
