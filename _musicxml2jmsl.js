@@ -1,9 +1,7 @@
 'use strict'
 
-var fs = require('fs'),
-    path = require('path'),
-    //process = require('process'),
-    xml2js = require('xml2js');
+const fs = require('fs');
+const xml2js = require('xml2js');
 
 function doc(jmslscoredoc = {})
 {
@@ -405,6 +403,32 @@ function notetype_to_int(notetype)
     }
 }
 
+function set_attr(obj, attr, val)
+{
+    obj['$'][attr] = val;
+}
+
+function get_staff(measure, n)
+{
+    if(n < 0){
+	n = measure.staff.length + n;
+    }
+    return measure.staff[n]
+}
+
+function get_track(staff, n)
+{
+    if(n < 0){
+	n = staff.track.length + n;
+    }
+    return staff.track[n];
+}
+
+function push_note(track, note)
+{
+    track.note.push(note);
+}
+
 function default_elem_handler(key, mxml, output_obj)
 {
     if(output_obj.skipped_elems == undefined){
@@ -451,15 +475,17 @@ var musicxml_callbacks =
 				    tcd(mxml,
 					jmsl,
 					{
-					    '$' : (mxml,jmsl)=>{
-					    },
+					    '$' : undefined,
 					    'part-name' : (mxml,jmsl)=>{
 						var n = jmsl.jmslscoredoc.score[0].orchestra[0].jmslscoreinstrument.length;
 						var inst = new jmslscoreinstrument(
 						    new jmslscoreinstrument_attrs(n, mxml),
-						    [new jmslscoreinstrument_dim(new jmslscoreinstrument_dim_attrs(4, 0.0, 0.0, 3.0, "EventFlag")),
-						     new jmslscoreinstrument_dim(new jmslscoreinstrument_dim_attrs(5, -1.0, -1.0, 127.0, "originalPitch")),
-						     new jmslscoreinstrument_dim(new jmslscoreinstrument_dim_attrs(6, -1.0, -1.0, 10000.0, "index"))]);
+						    [new jmslscoreinstrument_dim(
+							new jmslscoreinstrument_dim_attrs(4, 0.0, 0.0, 3.0, "EventFlag")),
+						     new jmslscoreinstrument_dim(
+							 new jmslscoreinstrument_dim_attrs(5, -1.0, -1.0, 127.0, "originalPitch")),
+						     new jmslscoreinstrument_dim(
+							 new jmslscoreinstrument_dim_attrs(6, -1.0, -1.0, 10000.0, "index"))]);
 						jmsl.jmslscoredoc.score[0].orchestra[0].jmslscoreinstrument.push(inst);
 					    }
 					})
@@ -479,6 +505,7 @@ var musicxml_callbacks =
 				    tcd(mxml,
 					jmsl,
 					{
+					    '$' : undefined,
 					    'attributes' : (mxml,jmsl)=>{
 						tcd(mxml,
 						    jmsl,
@@ -488,21 +515,27 @@ var musicxml_callbacks =
 							    tcd(mxml,
 								jmsl,
 								{
-								    'key-step' : (mxml,jmsl)=>{},
-								    'key-alter' : (mxml,jmsl)=>{},
-								    'key-accidental' : (mxml,jmsl)=>{},
-								    //'cancel' : (mxml,jmsl)=>{},
+								    'key-step' : undefined,
+								    'key-alter' : undefined,
+								    'key-accidental' : undefined,
+								    'cancel' : undefined,
 								    'fifths' : (mxml,jmsl)=>{
 									var i = Number(mxml);
 									if(i < 0){
-									    measure.staff[measure.staff.length - 1]['$'].KEYSIGTYPE = 1;
+									    set_attr(get_staff(measure, -1),
+											   "KEYSIGTYPE",
+											   1);
 									}else{
-									    measure.staff[measure.staff.length - 1]['$'].KEYSIGTYPE = 0;
+									    set_attr(get_staff(measure, -1),
+											   "KEYSIGTYPE",
+											   0);
 									}
-									measure.staff[measure.staff.length - 1]['$'].KEYSIGNUMACC = Math.abs(i);
+									set_attr(get_staff(measure, -1),
+										       "KEYSIGNUMACC",
+										       Math.abs(i));
 								    },
-								    //'mode' : (mxml,jmsl)=>{},
-								    'key-octave' : (mxml,jmsl)=>{}
+								    'mode' : undefined,
+								    'key-octave' : undefined
 								})},
 							'time' : (mxml,jmsl)=>{
 							    var beats = 4;
@@ -533,20 +566,24 @@ var musicxml_callbacks =
 								}else if(line == "4"){
 								    clef = 2; // tenor
 								}else{
-								    console.error("unsupported placement of clef " + sign + " on line " + line);
+								    console.error("unsupported placement of clef " +
+										  sign + " on line " + line);
 								}
 							    }else if(sign == "F"){
 								clef = 3; // bass
 							    }else if(sign == "percussion"){
 								clef = 4; 
 							    }else{
-								console.error("unhandled clef: sign = " + sign + " line: " + line);
+								console.error("unhandled clef: sign = " +
+									      sign + " line: " + line);
 							    }
-							    measure.staff[measure.staff.length - 1]['$'].CLEF = clef;
+							    set_attr(get_staff(measure, -1),
+								     "CLEF",
+								     clef)
 							}
 						    })
 					    },
-					    'direction' : (mxml,jmsl)=>{},
+					    'direction' : undefined,
 					    'note' : (mxml,jmsl)=>{
 						var track = 0;
 						var dims = [new note_dim(new note_dim_attrs(4, 0.0, "EventFlag")),
@@ -568,16 +605,42 @@ var musicxml_callbacks =
 								    'alter' : (mxml,jmsl)=>{alter = mxml},
 								    'octave' : (mxml,jmsl)=>{octave = mxml}
 								})
-							    note['$'].PITCH = note_to_midi(step, alter, octave)
+							    set_attr(note, "PITCH", note_to_midi(step, alter, octave));
 							},
-							'duration' : (mxml,jmsl)=>{note['$'].DURATION = Number(mxml) / divisions},
+							'duration' : (mxml,jmsl)=>{
+							    set_attr(note, "DURATION", Number(mxml) / divisions)
+							},
 							'voice' : (mxml,jmsl)=>{track = mxml - 1},
-							'type' : (mxml,jmsl)=>{note['$'].NOTEDUR = notetype_to_int(mxml)},
-							'notations' : (mxml,jmsl)=>{},
+							'type' : (mxml,jmsl)=>{
+							    set_attr(note, "NOTEDUR", notetype_to_int(mxml))
+							},
+							'accidental' : undefined,
+							'notations' : (mxml,jmsl)=>{
+							    tcd(mxml,
+								jmsl,
+								{
+								    'footnote' : undefined,
+								    'level' : undefined,
+								    'accidental-mark' : undefined,
+								    'arpeggiate' : undefined,
+								    'articulations' : undefined,
+								    'dynamics' : undefined,
+								    'fermata' : undefined,
+								    'glissando' : undefined,
+								    'non-arpeggiate' : undefined,
+								    'ornaments' : undefined,
+								    'other-notation' : undefined,
+								    'slide' : undefined,
+								    'slur' : undefined,
+								    'technical' : undefined,
+								    'tied' : undefined,
+								    'tuplet' : undefined
+								})
+							},
 							'chord' : (mxml,jmsl)=>{chord = true}
 						    })
 						if(chord == true){
-						    var t = measure.staff[measure.staff.length - 1].track[track];
+						    var t = get_track(get_staff(measure, -1), track);
 						    var n = t.note[t.note.length - 1];
 						    if("interval" in n == false){
 							n.interval = new Array();
@@ -585,7 +648,7 @@ var musicxml_callbacks =
 						    n.interval.push(note);
 
 						}else{
-						    measure.staff[measure.staff.length - 1].track[track].note.push(note)
+						    push_note(get_track(get_staff(measure, -1), track), note);
 						}
 						
 					    }
@@ -660,46 +723,55 @@ function partwise_to_timewise(pw)
     return tw;
 }
 
-function musicxml2jmsl(filename, callback)
+function musicxml2jmsl(musicxml_str, callback)
 {
-    fs.readFile(filename, {encoding: 'utf-8'}, function(err, musicxml_str){
+    xml2js.parseString(musicxml_str, function(err, mxml){
 	if(!err){
-	    xml2js.parseString(musicxml_str, function(err, mxml){
-		if(!err){
-		    if(mxml['score-timewise'] != undefined){
-		    }else if(mxml['score-partwise'] != undefined){
-			mxml = partwise_to_timewise(mxml);
-		    }else{
-			console.error("not a musicxml score.");
-			return {};
-		    }
-		    var jmsl = musicxml2jmsl_transcoder(mxml)
-		    var skipped_elems = {'skipped' : jmsl.skipped_elems}
-		    var skipped_str = JSON.stringify(skipped_elems,
-						     null,
-						     2);
-		    // console.error("skipped elements: \n");
-		    // console.error(skipped_str)
-		    delete jmsl['skipped_elems']
-		    var builder = new xml2js.Builder()
-		    var jmsl_xml = builder.buildObject(jmsl)
-		    //console.log(jmsl_xml)
-		    callback(jmsl_xml, skipped_str)
-		}else{
-		    console.error("error converting xml string to json:\n" + err);
-		}
-	    });
+	    if(mxml['score-timewise'] != undefined){
+	    }else if(mxml['score-partwise'] != undefined){
+		mxml = partwise_to_timewise(mxml);
+	    }else{
+		console.error("not a musicxml score.");
+		return;
+	    }
+	    var jmsl = musicxml2jmsl_transcoder(mxml)
+	    var skipped_elems = {'skipped' : jmsl.skipped_elems}
+	    var skipped_str = JSON.stringify(skipped_elems,
+					     null,
+					     2);
+	    // console.error("skipped elements: \n");
+	    // console.error(skipped_str)
+	    delete jmsl['skipped_elems']
+	    var builder = new xml2js.Builder()
+	    var jmsl_xml = builder.buildObject(jmsl)
+	    //console.log(jmsl_xml)
+	    callback(jmsl_xml, skipped_str)
 	}else{
-	    console.error("error reading xml file:\n" + err);
+	    console.error("error converting xml string to json:\n" + err);
 	}
     });
 }
 
-// function __main()
-// {
-//     var filename = process.argv[2];
-// }
-
-//__main();
+function read_musicxml(filename, callback)
+{
+    fs.readFile(filename, {encoding: 'utf-8'}, function(err, musicxml_str){
+	if(!err){
+	    callback(musicxml_str);
+	}else{
+	    console.error("couldn't read " + filename);
+	}
+    })
+}
 
 exports.musicxml2jmsl = musicxml2jmsl
+exports.read_musicxml = read_musicxml
+
+/*
+testing:
+make maxscore document and export jmsl (jmsl1)
+import jmsl1 to jmsl and export jmsl (jmsl2)
+import jmsl2 to jmsl and export musicxml (musicxml1)
+transcode musicxml1 to jmsl (jmsl3)
+import jmsl3 to jmsl and export jmsl (jmsl4)
+diff jmsl4 and jmsl2
+*/

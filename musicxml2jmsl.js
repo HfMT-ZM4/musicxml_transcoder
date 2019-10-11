@@ -7,9 +7,12 @@ function __main()
 	console.error("you must supply a filename");
 	return;
     }
-    m2j.musicxml2jmsl(process.argv[2], function(jmsl, skipped){
-	console.error(skipped);
-	console.log(jmsl);
+    var filename = process.argv[2];
+    m2j.read_musicxml(filename, function(musicxml_str){
+	m2j.musicxml2jmsl(musicxml_str, function(jmsl, skipped){
+	    console.error(skipped);
+	    console.log(jmsl);
+	});
     });
 }
 
