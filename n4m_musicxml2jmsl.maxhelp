@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 59.0, 104.0, 1335.0, 632.0 ],
+		"rect" : [ 340.0, 79.0, 1335.0, 632.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -89,8 +89,8 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 218.0, 107.0, 503.0, 20.0 ],
-					"text" : "filename /Users/john/Development/HfMT-ZM4/musicxml2jmsl/test/scores/musicxml/triad.XML"
+					"patching_rect" : [ 218.0, 107.0, 230.0, 20.0 ],
+					"text" : "filename ./test/scores/musicxml/triad.XML"
 				}
 
 			}
@@ -145,14 +145,16 @@
 					"numinlets" : 1,
 					"numoutlets" : 2,
 					"outlettype" : [ "", "" ],
-					"patching_rect" : [ 95.0, 180.0, 416.0, 20.0 ],
+					"patching_rect" : [ 95.0, 180.0, 191.0, 20.0 ],
 					"saved_object_attributes" : 					{
 						"autostart" : 0,
 						"defer" : 0,
+						"node_bin_path" : "",
+						"npm_bin_path" : "",
 						"watch" : 0
 					}
 ,
-					"text" : "node.script ~/Development/HfMT-ZM4/musicxml2jmsl/n4m_musicxml2jmsl.js"
+					"text" : "node.script n4m_musicxml2jmsl.js"
 				}
 
 			}
@@ -214,6 +216,13 @@
 
 			}
  ],
+		"parameters" : 		{
+			"parameterbanks" : 			{
+
+			}
+
+		}
+,
 		"dependency_cache" : [ 			{
 				"name" : "n4m_musicxml2jmsl.js",
 				"bootpath" : "~/Development/HfMT-ZM4/musicxml2jmsl",
