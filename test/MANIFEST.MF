@@ -1,2 +1,0 @@
-Main-Class: JMSL2MusicXML
-Class-Path: /Users/john/Documents/Max%208/Packages/MaxScore/java-classes/lib/jscore.jar /Users/john/Documents/Max%208/Packages/MaxScore/java-classes/lib/jmsl.jar /Users/john/Documents/Max%208/Packages/MaxScore/java-classes/lib/maxscore.jar /Applications/Max.app/Contents/Resources/C74/packages/max-mxj/java-classes/lib/max.jar
