@@ -67,6 +67,7 @@ function score(attrs,
     this["staffspacing"] = staffspacing;
     this["scoresection"] = scoresection;
     this["measure"] = measure;
+    this["scoreUserBean"] = {"$" : {"CLASSNAME" : "com.algomusic.max.MaxScoreRenderedMessageListener"}};
 }
 
 function ScoreAnnotation_attrs()
@@ -102,8 +103,8 @@ function jmslscoreinstrument_attrs(InsIndex,
     this["InsIndex"] = InsIndex;
     this["EditEnabled"] = EditEnabled;
     this["Name"] = Name;
-    this["MixerClassName"] = MixerClassName;
     this["Transposition"] = Transposition;
+    this["MixerClassName"] = MixerClassName;
 }
 
 function jmslscoreinstrument(attrs, dim = [])
@@ -595,7 +596,9 @@ var musicxml_callbacks =
 								    'alter' : (mxml,jmsl)=>{alter = mxml},
 								    'octave' : (mxml,jmsl)=>{octave = mxml}
 								})
-							    set_attr(note, "PITCH", note_to_midi(step, alter, octave));
+							    var midipitch = note_to_midi(step, alter, octave);
+							    set_attr(note, "PITCH", midipitch);
+							    set_attr(note['dim'][1], "value", midipitch);
 							},
 							'duration' : (mxml,jmsl)=>{
 							    set_attr(note, "DURATION", Number(mxml) / divisions)
