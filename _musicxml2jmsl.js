@@ -1476,10 +1476,8 @@ function musicxml2jmsl(musicxml_str, callback)
     jmsl = T(mxml, jmsl, musicxml_callbacks);
     //console.log(JSON.stringify(jmsl, null, 2))
     // var jmsl = musicxml2jmsl_transcode(mxml);
-    var skipped_elems = {'skipped' : jmsl.skipped_elems};
-    var skipped_str = JSON.stringify(skipped_elems,
-    				     null,
-    				     2);
+    var skipped_elems = {'skipped' : JSON.parse(JSON.stringify(jmsl.skipped_elems))};
+    //var skipped_str = JSON.stringify(skipped_elems, null, 2);
     delete jmsl['skipped_elems']
     //var score_annotation = jmsl.jmslscoredoc.score[0].ScoreAnnotation[0]['attributes'].Annotation
     //jmsl.jmslscoredoc.score[0].ScoreAnnotation[0]['attributes'].Annotation = JSON.stringify(score_annotation);
@@ -1487,7 +1485,7 @@ function musicxml2jmsl(musicxml_str, callback)
     jmsl.elements[0].elements[0].elements[0].attributes.Annotation = JSON.stringify(score_annotation);
     var jmsl_xml = xml2js.json2xml(jmsl, {spaces: 4});
     //console.log(jmsl_xml);
-    callback(jmsl_xml, skipped_str);
+    callback(jmsl_xml, skipped_elems);
 }
 
 // function musicxml2jmsl(musicxml_str, callback)
