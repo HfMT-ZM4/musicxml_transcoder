@@ -10,7 +10,7 @@ function __main()
     var filename = process.argv[2];
     m2j.read_musicxml(filename, function(musicxml_str){
 	m2j.musicxml2jmsl(musicxml_str, function(jmsl, skipped){
-	    // console.error(skipped);
+	    console.error(skipped);
 	    console.log(jmsl);
 	});
     });
