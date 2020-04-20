@@ -3,8 +3,8 @@
 		"fileversion" : 1,
 		"appversion" : 		{
 			"major" : 8,
-			"minor" : 0,
-			"revision" : 6,
+			"minor" : 1,
+			"revision" : 1,
 			"architecture" : "x64",
 			"modernui" : 1
 		}
@@ -54,19 +54,7 @@
 					"maxclass" : "dict.view",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 138.0, 279.0, 592.0, 306.0 ]
-				}
-
-			}
-, 			{
-				"box" : 				{
-					"id" : "obj-7",
-					"maxclass" : "newobj",
-					"numinlets" : 1,
-					"numoutlets" : 1,
-					"outlettype" : [ "dictionary" ],
-					"patching_rect" : [ 138.0, 246.0, 88.0, 20.0 ],
-					"text" : "dict.deserialize"
+					"patching_rect" : [ 138.0, 246.0, 592.0, 306.0 ]
 				}
 
 			}
@@ -89,8 +77,8 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 218.0, 107.0, 230.0, 20.0 ],
-					"text" : "filename ./test/scores/musicxml/triad.XML"
+					"patching_rect" : [ 218.0, 107.0, 341.0, 20.0 ],
+					"text" : "filename ./test/scores/musicxml/Flute_Practice_Frustration.xml"
 				}
 
 			}
@@ -109,7 +97,7 @@
 					"numoutlets" : 1,
 					"offset" : [ 0.0, 0.0 ],
 					"outlettype" : [ "bang" ],
-					"patching_rect" : [ 743.0, 279.0, 561.0, 306.0 ],
+					"patching_rect" : [ 743.0, 246.0, 400.0, 220.0 ],
 					"viewvisibility" : 1
 				}
 
@@ -149,8 +137,6 @@
 					"saved_object_attributes" : 					{
 						"autostart" : 0,
 						"defer" : 0,
-						"node_bin_path" : "",
-						"npm_bin_path" : "",
 						"watch" : 0
 					}
 ,
@@ -175,7 +161,7 @@
 			}
 , 			{
 				"patchline" : 				{
-					"destination" : [ "obj-7", 0 ],
+					"destination" : [ "obj-8", 0 ],
 					"source" : [ "obj-12", 1 ]
 				}
 
@@ -208,21 +194,7 @@
 				}
 
 			}
-, 			{
-				"patchline" : 				{
-					"destination" : [ "obj-8", 0 ],
-					"source" : [ "obj-7", 0 ]
-				}
-
-			}
  ],
-		"parameters" : 		{
-			"parameterbanks" : 			{
-
-			}
-
-		}
-,
 		"dependency_cache" : [ 			{
 				"name" : "n4m_musicxml2jmsl.js",
 				"bootpath" : "~/Development/HfMT-ZM4/musicxml2jmsl",
