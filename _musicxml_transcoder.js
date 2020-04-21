@@ -201,6 +201,7 @@ function read_musicxml(filename, callback)
 	    callback(musicxml_str);
 	}else{
 	    console.error("couldn't read " + filename);
+	    console.error("error: " + err);
 	}
     })
 }
