@@ -15,7 +15,7 @@ Max.addHandler("filename", (filename) => {
 	    Max.outlet("skipped", skipped);
 	    Max.outlet("jmsl", "startdump", "dumpScore");
 	    lines.forEach(function(l){
-		Max.outlet("jmsl", l);
+		Max.outlet("jmsl", l.trim());
 	    })
 	    Max.outlet("jmsl", "enddump", "dumpScore");
 	});
