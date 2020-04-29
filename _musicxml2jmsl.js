@@ -367,6 +367,13 @@ function push_note_onto_staff(staff, tracknum, note)
     staff.elements[tracknum].elements.push(note);
 }
 
+function push_note_onto_interval(staff, tracknum, note)
+{
+    note.name = "interval";
+    var es = staff.elements[tracknum].elements;
+    es[es.length - 1].elements.push(note);
+}
+
 function note_attrs(
     NOTEDUR = 0,
     TUPLET = 0,
@@ -1371,7 +1378,11 @@ var musicxml_callbacks =
 					  var note = new jmsl_note(nattr, [new note_dim(ndimattrs[0]),
 									   new note_dim(ndimattrs[1]),
 									   new note_dim(ndimattrs[2])])
-					  push_note_onto_staff(__ss[staffnum], tracknum, note);
+					  if(chord){
+					      push_note_onto_interval(__ss[staffnum], tracknum, note);
+					  }else{
+					      push_note_onto_staff(__ss[staffnum], tracknum, note);
+					  }
 				      }
 				  })
 				__ss.forEach((s, i) => {
