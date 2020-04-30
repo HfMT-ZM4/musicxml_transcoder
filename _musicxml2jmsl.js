@@ -6,6 +6,56 @@ const xml2js = require('xml-js')//require('xml2js');
 const T = transcoder.transcode;
 const v = transcoder.value;
 
+// these constants were copied directly from the Max patch maxscore.parse2
+
+const ACC_PREFER_SHARP = 0;
+const ACC_PREFER_FLAT = 1;
+
+const DYN_PPP = 1;
+const DYN_PP = 2;
+const DYN_P = 3;
+const DYN_MP = 4;
+const DYN_MF = 5;
+const DYN_F = 6;
+const DYN_FF = 7;
+const DYN_FFF = 8;
+
+const MARK_NONE = 0; 
+const MARK_ACCENT = 1; 
+const MARK_STACCATO = 2; 
+const MARK_TENUTO = 3; 
+const MARK_WEDGE = 4; 
+const MARK_ACCENT_STACCATO = 5; 
+const MARK_ACCENT_TENUTO = 6; 
+const MARK_WEDGE_STACCATO = 7; 
+const MARK_FERMATA = 8; 
+const MARK_HARMONIC = 9; 
+const MARK_TRILL = 10; 
+const MARK_TRILL_FLAT = 11; 
+const MARK_TRILL_SHARP = 12; 
+const MARK_TRILL_NATURAL = 13; 
+const MARK_MORDANT = 14; 
+const MARK_INVERTED_MORDANT = 15; 
+const MARK_BOWED_TREMOLO_1 = 16; 
+const MARK_BOWED_TREMOLO_2 = 17; 
+const MARK_BOWED_TREMOLO_3 = 18; 
+const MARK_ACCIACCATURA = 19;
+
+const NOTEHEAD_STANDARD_1 = 0;
+const NOTEHEAD_STANDARD_2 = 1;
+const NOTEHEAD_X_1 = 2;
+const NOTEHEAD_X_2 = 3;
+const NOTEHEAD_X_DIAMOND = 4;
+const NOTEHEAD_DIAMOND_1 = 5;
+const NOTEHEAD_DIAMOND_2 = 6;
+const NOTEHEAD_TRIANGLE_1 = 7;
+const NOTEHEAD_TRIANGLE_2 = 8;
+const NOTEHEAD_INVERTED_TRIANGLE_1 = 9;
+const NOTEHEAD_INVERTED_TRIANGLE_2 = 10;
+const NOT_IN_USE = 11;
+const NOTEHEAD_SLASH = 12;
+
+
 function doc(jmslscoredoc)
 {
     this["declaration"] = {
@@ -64,6 +114,11 @@ function score_attrs()
     this["ScoreTitleFontName"] = "Serif";
     this["TimesigFontName"] = "Serif";
     this["MeasureNumberFontName"] = "SansSerif";
+}
+
+function set_score_attr(jmsl, attr, val)
+{
+    jmsl.elements[0].elements[0].attributes[attr] = val;
 }
 
 function score(attrs,
@@ -372,6 +427,17 @@ function push_note_onto_interval(staff, tracknum, note)
     note.name = "interval";
     var es = staff.elements[tracknum].elements;
     es[es.length - 1].elements.push(note);
+}
+
+function push_text_onto_note(staff, text, placement)
+{
+    var es = staff.elements[0].elements;
+    es[es.length - 1].attributes.TEXT += text;
+}
+
+function staff_has_notes(staff)
+{
+    return staff.elements[0].elements.length;
 }
 
 function note_attrs(
@@ -857,17 +923,28 @@ var musicxml_callbacks =
 	'score-timewise' : (mxml,jmsl)=>{
 	    var divisions = 32;
 	    var tempo = 60;
+	    var timesig = "4 4";
 	    T(mxml, jmsl, {
-		  'work' : undefined,// function (mxml, jmsl){
-		  // 	T(mxml,
-		  // 	    jmsl,
-		  // 	    {
-		  // 		'work-title' : (mxml,jmsl)=>{
-		  // 		    jmsl.jmslscoredoc.score[0]['attributes'].NAME = mxml;
-		  // 		}
-		  // 	    })
-		  // },
-		  'identification' : undefined,
+		  'work' : function (mxml, jmsl){
+		  	T(mxml,
+		  	    jmsl,
+		  	    {
+		  		'work-title' : (mxml,jmsl)=>{
+				    set_score_attr(jmsl, "NAME", v(mxml));
+		  		},
+		  	    })
+		  },
+		  'identification' : function (mxml, jmsl){
+		  	T(mxml,
+		  	    jmsl,
+		  	    {
+				'creator' : (mxml,jmsl)=>{
+				    if(!("type" in mxml.attributes) || mxml.attributes.type == "composer"){
+				    	set_score_attr(jmsl, "COMPOSER", v(mxml));
+				    }
+		  		}
+		  	    })
+		  },
 		  'part-list' : undefined,
 		  // 'part-list' : function (mxml, jmsl){
 		  //     T(mxml,
@@ -888,6 +965,7 @@ var musicxml_callbacks =
 		  'measure' : function (mxml, jmsl){
 		      var __m = new jmsl_measure(new measure_attrs(), []);
 		      __m.attributes.TEMPO = tempo;
+		      __m.attributes.TIMESIG = timesig;
 		      if("width" in mxml.attributes){
 			  // __m.attributes.WIDTH = Math.round(mxml.attributes.width);
 			  // __m.attributes.WIDTHSETBYHAND = true;
@@ -931,7 +1009,18 @@ var musicxml_callbacks =
 							  'key-octave' : undefined
 						      })
 						},
-						'time' : undefined,
+						'time' : (mxml,jmsl)=>{
+		    				    var beats = 4;
+		    				    var beat_type = 4;
+		    				    T(mxml,
+		    				      jmsl,
+		    				      {
+		    					  'beats' : (mxml,jmsl)=>{beats = Number(v(mxml))},
+		    					  'beat-type' : (mxml,jmsl)=>{beat_type = Number(v(mxml))}
+		    				      });
+						    timesig = beats + " " + beat_type;
+						    __m.attributes.TIMESIG = timesig;
+		    				},
 						'staves' : (mxml,jmsl)=>{
 						    // we've already dealt with the number of staves
 						    // when we entered this part
@@ -993,6 +1082,7 @@ var musicxml_callbacks =
 				      'direction' : (mxml,jmsl) => {
 					  var staff = 0;
 					  var voice = 0;
+					  var directionmxml = mxml;
 					  T(mxml, jmsl, {
 					      'direction-type' : (mxml,jmsl)=>{
 						  T(mxml, jmsl, {
@@ -1080,6 +1170,22 @@ var musicxml_callbacks =
 								  }
 							      }
 							  })
+						      },
+						      'words' : (mxml,jmsl)=>{
+							  if("elements" in mxml){
+							      //__m.attributes.MEASURETEXT = mxml.elements[0].text;
+							      var placement = "above";
+							      if("placement" in directionmxml.attributes){
+								  placement = directionmxml.attributes.placement;
+							      }
+							      if(staff_has_notes(__ss[0]) == 0){
+								  __m.attributes.MEASURETEXT += mxml.elements[0].text;
+							      }else{
+								  push_text_onto_note(__ss[0/*staffnum*/],
+										      mxml.elements[0].text,
+										      placement);
+							      }
+							  }
 						      }
 						  })
 
@@ -1120,9 +1226,16 @@ var musicxml_callbacks =
 						    	  'alter' : (mxml,jmsl)=>{alter = Number(v(mxml))},
 						    	  'octave' : (mxml,jmsl)=>{octave = Number(v(mxml))}
 						      })
+						    alter = Number(alter);
 						    var midipitch = note_to_midi(step, alter, octave);
 						    nattr.PITCH = midipitch;
 						    ndimattrs[1].value = midipitch;
+						    if(alter < 0){
+							nattr.ACCPREF = ACC_PREFER_FLAT;
+						    }
+						    if(alter > 1 || alter < -1){
+							nattr.ALTENHARMONIC = true;
+						    }
 						},
 						'rest' : (mxml,jmsl)=>{
 						    // rest is indicated by PITCH=0, so nothing to do
@@ -1184,7 +1297,19 @@ var musicxml_callbacks =
 							break;
 						    }
 						},
-						'notehead' : undefined,
+						'notehead' : (mxml,jmsl)=>{
+						    switch(v(mxml)){
+						    case "x":
+							if(nattr.NOTEDUR == 0 || nattr.NOTEDUR == 1){
+							    nattr.NOTEHEAD = NOTEHEAD_X_2;
+							}else{
+						    	    nattr.NOTEHEAD = NOTEHEAD_X_1;
+							}
+						    	break;
+						    default:
+						    	transcoder.default_elem_handler(notehead, mxml, jmsl);
+						    }
+						},
 						'notehead-text' : undefined,
 						'staff' : (mxml,jmsl)=>{
 						    staffnum = Number(v(mxml)) - 1;
@@ -1222,11 +1347,34 @@ var musicxml_callbacks =
 		    				      {
 		    					  'footnote' : undefined,
 		    					  'level' : undefined,
-		    					  'accidental-mark' : undefined,
+		    					  'accidental-mark' : (mxml,jmsl)=>{
+							      if(nattr.MARK == MARK_TRILL){
+								  switch(mxml.elements[0]){
+								  case "flat":
+								      nattr.MARK = MARK_TRILL_FLAT;
+								      break;
+								  case "sharp":
+								      nattr.MARK = MARK_TRILL_SHARP;
+								      break;
+								  case "natural":
+								      nattr.MARK = MARK_TRILL_NATURAL;
+								      break;
+								  default:
+								      transcoder.default_elem_handler('accidental-mark',
+												      mxml,
+												      jmsl);
+								      break;
+								  }
+							      }else{
+								  transcoder.default_elem_handler('accidental-mark',
+												  mxml,
+												  jmsl);
+							      }
+							  },
 		    					  'arpeggiate' : undefined,
 		    					  'articulations' : (mxml,jmsl)=>{
 							      T(mxml, jmsl, {
-								  'accent' : (mxml,jmsl)=>{nattr.MARK = 1},
+								  'accent' : (mxml,jmsl)=>{nattr.MARK = MARK_ACCENT},
 								  'breath-mark' : undefined,
 								  'caesura' : undefined,
 								  'detached-legato' : undefined,
@@ -1236,31 +1384,31 @@ var musicxml_callbacks =
 								  'plop' : undefined,
 								  'scoop' : undefined,
 								  'spiccato' : undefined,
-								  'staccatissimo' : (mxml,jmsl)=>{nattr.MARK = 4},
-								  'staccato' : (mxml,jmsl)=>{nattr.MARK = 2},
+								  'staccatissimo' : (mxml,jmsl)=>{nattr.MARK = MARK_WEDGE},
+								  'staccato' : (mxml,jmsl)=>{nattr.MARK = MARK_STACCATO},
 								  'stress' : undefined,
 								  'strong-accent' : undefined,
-								  'tenuto' : (mxml,jmsl)=>{nattr.MARK = 3},
+								  'tenuto' : (mxml,jmsl)=>{nattr.MARK = MARK_TENUTO},
 								  'unstress' : undefined
 							      })
 							  },
 		    					  'dynamics' : (mxml,jmsl)=>{
 							      // DYNAMIC_NONE, DYNAMIC_PPP, DYNAMIC_PP, DYNAMIC_P, DYNAMIC_MP, DYNAMIC_MF, DYNAMIC_F, DYNAMIC_FF, DYNAMIC_FFF
 							      T(mxml, jmsl, {
-								  'f' : (mxml,jmsl)=>{nattr.DYN = 6},
-								  'ff' : (mxml,jmsl)=>{nattr.DYN = 7},
-								  'fff' : (mxml,jmsl)=>{nattr.DYN = 8},
+								  'f' : (mxml,jmsl)=>{nattr.DYN = DYN_F},
+								  'ff' : (mxml,jmsl)=>{nattr.DYN = DYN_FF},
+								  'fff' : (mxml,jmsl)=>{nattr.DYN = DYN_FFF},
 								  'ffff' : undefined,
 								  'fffff' : undefined,
 								  'ffffff' : undefined,
 								  'fp' : undefined,
 								  'fz' : undefined,
-								  'mf' : (mxml,jmsl)=>{nattr.DYN = 5},
-								  'mp' : (mxml,jmsl)=>{nattr.DYN = 4},
+								  'mf' : (mxml,jmsl)=>{nattr.DYN = DYN_MF},
+								  'mp' : (mxml,jmsl)=>{nattr.DYN = DYN_MP},
 								  'other-dynamics' : undefined,
-								  'p' : (mxml,jmsl)=>{nattr.DYN = 3},
-								  'pp' : (mxml,jmsl)=>{nattr.DYN = 2},
-								  'ppp' : (mxml,jmsl)=>{nattr.DYN = 1},
+								  'p' : (mxml,jmsl)=>{nattr.DYN = DYN_P},
+								  'pp' : (mxml,jmsl)=>{nattr.DYN = DYN_PP},
+								  'ppp' : (mxml,jmsl)=>{nattr.DYN = DYN_PPP},
 								  'pppp' : undefined,
 								  'ppppp' : undefined,
 								  'pppppp' : undefined,
@@ -1273,7 +1421,7 @@ var musicxml_callbacks =
 								  'sfz' : undefined
 							      })
 							  },
-		    					  'fermata' : (mxml,jmsl)=>{nattr.MARK = 8;},
+		    					  'fermata' : (mxml,jmsl)=>{nattr.MARK = MARK_FERMATA;},
 		    					  'glissando' : (mxml,jmsl)=>{
 							      var val = mxml.attributes.type;
 							      if(val == "start" || val == "continue"){
@@ -1281,7 +1429,41 @@ var musicxml_callbacks =
 							      }
 							  },
 		    					  'non-arpeggiate' : undefined,
-		    					  'ornaments' : undefined,
+		    					  'ornaments' : (mxml,jmsl)=>{
+							      T(mxml, jmsl, {
+								  'delayed-inverted-turn' : undefined,
+								  'delayed-turn' : undefined,
+								  'inverted-mordent' : (mxml,jmsl)=>{nattr.MARK = MARK_MORDANT},
+								  'inverted-turn' : undefined,
+								  'mordent' : (mxml,jmsl)=>{nattr.MARK = MARK_INVERTED_MORDANT},
+								  'other-ornament' : undefined,
+								  'schleifer' : undefined,
+								  'shake' : undefined,
+								  'tremolo' : (mxml,jmsl)=>{
+								      if("type" in mxml.attributes){
+									  var tremt = mxml.attributes.type;
+									  switch(tremt){
+									  default:
+									  case "single":
+									      nattr.MARK = MARK_BOWED_TREMOLO_1;
+									      break;
+									  case "double":
+									      nattr.MARK = MARK_BOWED_TREMOLO_2;
+									      break;
+									  case "triple":
+									      nattr.MARK = MARK_BOWED_TREMOLO_3
+									      break;
+									  }
+								      }else{
+									  nattr.MARK = MARK_BOWED_TREMOLO_1;
+								      }
+								  },
+								  'trill-mark' : (mxml,jmsl)=>{nattr.MARK = MARK_TRILL},
+								  'turn' : undefined,
+								  'vertical_turn' : undefined,
+								  'wavy-line' : undefined
+							      })
+							  },
 		    					  'other-notation' : undefined,
 		    					  'slide' : undefined,
 		    					  'slur' : (mxml,jmsl)=>{
@@ -1305,25 +1487,29 @@ var musicxml_callbacks =
 							      }
 							  },
 		    					  'tuplet' : undefined,// (mxml,jmsl)=>{
-							  //     if(mxml.attributes.type == "start"){
-							  // 	  console.error("tuplet start: ");
-							  // 	  //nattr.TUPLET = 1;
-							  //     }else{
-							  // 	  console.error("tuplet stop: ");
-							  // 	  nattr.TUPLET = "stop";
-							  //     }
-							  // }
+							      // if(mxml.attributes.type == "start"){
+							      // 	  console.error("tuplet start: ");
+							      // 	  //nattr.TUPLET = 1;
+							      // }else{
+							      // 	  console.error("tuplet stop: ");
+							      // 	  nattr.TUPLET = "stop";
+							      // }
+							  //}
 		    				      })
 		    				},
 						'time-modification' : (mxml,jmsl)=>{
+						    var an, nn;
 						    T(mxml, jmsl, {
 							'actual-notes' : (mxml,jmsl)=>{
-							    nattr.TUPLET = Number(v(mxml));
+							    //nattr.TUPLET = Number(v(mxml));
+							    an = Number(v(mxml));
 							},
 							'normal-notes' : (mxml,jmsl)=>{
-
+							    nn = Number(v(mxml));
 							}
 						    })
+						    nattr.TUPLET = an;
+						    nattr.DURATION = (nattr.DURATION * nn) / an;
 						},
 						/*
 						  <lyric default-y="-130" number="2">
