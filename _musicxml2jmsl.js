@@ -40,6 +40,7 @@ const MARK_BOWED_TREMOLO_1 = 16;
 const MARK_BOWED_TREMOLO_2 = 17; 
 const MARK_BOWED_TREMOLO_3 = 18; 
 const MARK_ACCIACCATURA = 19;
+const MARK_BREATH = 20;
 
 const NOTEHEAD_STANDARD_1 = 0;
 const NOTEHEAD_STANDARD_2 = 1;
@@ -822,7 +823,19 @@ var musicxml_callbacks =
 				      },
 				      'barline' : (mxml,jmsl) => {
 					  T(mxml, jmsl, {
-					      'bar-style' : undefined,
+					      'bar-style' : (mxml,jmsl)=>{
+						  switch(v(mxml)){
+						  case "light-light":
+						      __m.attributes.BARLINE = "DOUBLE";
+						      break;
+						  case "light-heavy":
+						      __m.attributes.BARLINE = "PERIOD";
+						      break;
+						  default:
+						      transcoder.default_elem_handler('bar-style', mxml, jmsl);
+						      break;
+						  }
+					      },
 					      'repeat' : (mxml,jmsl)=>{
 						  switch(mxml.attributes.direction){
 						  case "forward":
@@ -1028,9 +1041,12 @@ var musicxml_callbacks =
 							break;
 						    case "double-sharp":
 							nattr.ACCINFO = 5;
+							nattr.ALTENHARMONIC = true;
 							break;
 						    case "flat-flat":
 							nattr.ACCINFO = 4;
+							nattr.ALTENHARMONIC = true;
+							nattr.ACCPREF = 1;
 							break;
 						    }
 						},
@@ -1075,28 +1091,6 @@ var musicxml_callbacks =
 							nattr.BEAMEDOUT = true;
 						    }
 						},
-/*
-0 : MARK_NONE, 
-1 : MARK_ACCENT, 
-2 : MARK_STACCATO, 
-3 : MARK_TENUTO, 
-4 : MARK_WEDGE, 
-5 : MARK_ACCENT_STACCATO, 
-6 : MARK_ACCENT_TENUTO, 
-7 : MARK_WEDGE_STACCATO, 
-8 : MARK_FERMATA, 
-9 : MARK_HARMONIC, 
-10 : MARK_TRILL, 
-11 : MARK_TRILL_FLAT, 
-12 : MARK_TRILL_SHARP, 
-13 : MARK_TRILL_NATURAL, 
-14 : MARK_MORDANT, 
-15 : MARK_INVERTED_MORDANT, 
-16 : MARK_BOWED_TREMOLO_1, 
-17 : MARK_BOWED_TREMOLO_2, 
-18 : MARK_BOWED_TREMOLO_3, 
-19 : MARK_ACCIACCATURA
-*/
 						'notations' : (mxml,jmsl)=>{
 		    				    T(mxml, jmsl,
 		    				      {
@@ -1129,8 +1123,8 @@ var musicxml_callbacks =
 		    					  'arpeggiate' : undefined,
 		    					  'articulations' : (mxml,jmsl)=>{
 							      T(mxml, jmsl, {
-								  'accent' : (mxml,jmsl)=>{nattr.MARK = MARK_ACCENT},
-								  'breath-mark' : undefined,
+								  'accent' : (mxml,jmsl)=>{nattr.MARK += "_" + MARK_ACCENT},
+								  'breath-mark' : (mxml,jmsl)=>{nattr.MARK += "_" + MARK_BREATH},
 								  'caesura' : undefined,
 								  'detached-legato' : undefined,
 								  'doit' : undefined,
@@ -1139,11 +1133,11 @@ var musicxml_callbacks =
 								  'plop' : undefined,
 								  'scoop' : undefined,
 								  'spiccato' : undefined,
-								  'staccatissimo' : (mxml,jmsl)=>{nattr.MARK = MARK_WEDGE},
-								  'staccato' : (mxml,jmsl)=>{nattr.MARK = MARK_STACCATO},
+								  'staccatissimo' : (mxml,jmsl)=>{nattr.MARK += "_" + MARK_WEDGE},
+								  'staccato' : (mxml,jmsl)=>{nattr.MARK += "_" + MARK_STACCATO},
 								  'stress' : undefined,
 								  'strong-accent' : undefined,
-								  'tenuto' : (mxml,jmsl)=>{nattr.MARK = MARK_TENUTO},
+								  'tenuto' : (mxml,jmsl)=>{nattr.MARK += "_" + MARK_TENUTO},
 								  'unstress' : undefined
 							      })
 							  },
@@ -1296,6 +1290,14 @@ var musicxml_callbacks =
 						'play' : undefined
 					    })
 					  nattr.DOTS = dots;
+					  if(dots > 0){
+					      var d = nattr.DURATION;
+					      var ad = 0;
+					      for(var i = 0; i < dots; i++){
+						  ad += (d / Math.pow(2., i + 1));
+					      }
+					      nattr.DURATION += ad;
+					  }
 					  if(dyn != undefined){
 					      nattr.DYN = dyn;
 					      dyn = undefined;
