@@ -660,7 +660,6 @@ function push_note(track, note)
 
 function set_staff_attribute(info_obj, partid, partstaffnum, key, val)
 {
-    
     if(partstaffnum < 0){
 	var staffnumlist = info_obj.parts[partid].staffnums;
 	staffnumlist.forEach(i => {
@@ -720,7 +719,12 @@ var musicxml_callbacks =
 		  // 	    }
 		  // 	})
 		  // },
-		  'measure' : function (mxml, jmsl){
+		'measure' : function (mxml, jmsl){
+		    if("number" in mxml.attributes){
+			if(Number(mxml.attributes.number) == 0){
+			    jmsl.elements[0].elements[0].attributes.MeasureNumberOffset = 0;
+			}
+		    }
 		      var __m = new jmsl_measure(new measure_attrs(), []);
 		      __m.attributes.TEMPO = tempo;
 		      __m.attributes.TIMESIG = timesig;
@@ -1344,7 +1348,7 @@ var musicxml_callbacks =
 				      }
 				  })
 				__ss.forEach((s, i) => {
-				    s.attributes = JSON.parse(JSON.stringify(jmsl.info.staffattrs[i]));
+				    s.attributes = JSON.parse(JSON.stringify(jmsl.info.staffattrs[i + jmsl.info.parts[partid].staffoffset]));
 				    push_staff_onto_measure(__m, s);
 				})
 			    }
@@ -1379,7 +1383,7 @@ function init_jmsl_score(mxml)
 	for(var i = 0; i < ns; i++){
 	    info.parts[p].staffnums.push(i + staff);
 	}
-	staff += nstaves;
+	staff += ns;
     })
     var staffattrs = new Array(nstaves);
     var noteattrs = new Array(nstaves);
