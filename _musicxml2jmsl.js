@@ -739,6 +739,10 @@ var musicxml_callbacks =
 				}
 				var dyn = undefined;
 				var start_of_measure = true;
+				// gracenotes come before the notes that they attach to in MusicXML,
+				// and are part of the notes that they attach to, so we have to keep
+				// an array of them until the next real note appears.
+				var gracenotes = undefined;
 				T(mxml, jmsl,
 				  {
 				      
@@ -977,12 +981,13 @@ var musicxml_callbacks =
 					  var chord = false;
 					  var staffnum = 0;
 					  var dots = 0;
+					  var grace = false;
 					  start_of_measure = false;
 					  T(mxml, jmsl,
 					    {
 						'attributes' : undefined,
 						'cue' : undefined,
-						'grace' : undefined,
+						'grace' : (mxml,jmsl)=>{grace = true},
 						'chord' : (mxml,jmsl)=>{chord = true},
 						'pitch' : (mxml,jmsl)=>{
 						    var step;
@@ -1315,11 +1320,27 @@ var musicxml_callbacks =
 					  var note = new jmsl_note(nattr, [new note_dim(ndimattrs[0]),
 									   new note_dim(ndimattrs[1]),
 									   new note_dim(ndimattrs[2])])
-					  if(chord){
+					  if(grace){
+					      if(gracenotes == undefined){
+						  gracenotes = new Array();
+					      }
+					      if(chord){
+						  note.name = "interval";
+						  gracenotes[gracenotes.length - 1].elements.push(note);
+					      }else{
+						  note.name = "gracenote";
+						  gracenotes.push(note);						  
+					      }
+					  }else if(chord){
 					      push_note_onto_interval(__ss[staffnum], tracknum, note);
 					  }else{
+					      if(gracenotes != undefined){
+						  gracenotes.forEach(g => note.elements.push(g));
+						  gracenotes = undefined;
+					      }
 					      push_note_onto_staff(__ss[staffnum], tracknum, note);
 					  }
+					  
 				      }
 				  })
 				__ss.forEach((s, i) => {
