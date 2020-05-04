@@ -671,259 +671,16 @@ function set_staff_attribute(info_obj, partid, partstaffnum, key, val)
     }
 }
 
-// var musicxml_callbacks =
-//     {
-// 	'score-timewise' : (mxml,jmsl)=>{
-// 	    var ss = []
-// 	    var alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-// 	    for(const c of alpha){
-// 		ss.push(new scoresection(new scoresection_attrs(c, 0, 0)))
-// 	    }
-// 	    jmsl.jmslscoredoc.score = [new score(new score_attrs(),
-// 						 [ new ScoreAnnotation(new ScoreAnnotation_attrs()) ],
-// 						 [ new orchestra(new orchestra_attrs()) ],
-// 						 [ new mixerpanelsettings() ],
-// 						 [],//[ new staffspacing(new staffspacing_attrs()) ],
-// 						 ss,
-// 						)]
-// 	    T(mxml,
-// 		jmsl,
-// 		{
-// 		    'work' : undefined,// function (mxml, jmsl){
-// 		    // 	T(mxml,
-// 		    // 	    jmsl,
-// 		    // 	    {
-// 		    // 		'work-title' : (mxml,jmsl)=>{
-// 		    // 		    jmsl.jmslscoredoc.score[0]['attributes'].NAME = mxml;
-// 		    // 		}
-// 		    // 	    })
-// 		    // },
-// 		    'identification' : undefined,
-// 		    'part-list' : function (mxml, jmsl){
-// 			T(mxml,
-// 			    jmsl,
-// 			    {
-// 				'score-part' : (mxml,jmsl)=>{
-// 				    T(mxml,
-// 					jmsl,
-// 					{
-// 					    'attributes' : undefined,
-// 					    'part-name' : (mxml,jmsl)=>{
-// 						_addinstrument(jmsl, v(mxml));
-// 					    }
-// 					})
-// 				}
-// 			    })
-// 		    },
-// 		    'measure' : function (mxml, jmsl){
-// 			console.log("measure " + mxml.elements.length);
-// 		    }
-// 		    // 	var measure = new jmsl_measure(new measure_attrs())
-// 		    // 	var staves = 1;
-// 		    // 	T(mxml,
-// 		    // 	    jmsl,
-// 		    // 	    {
-// 		    // 		'part' : (mxml,jmsl)=>{
-// 		    // 		    var tracks = [];
-// 		    // 		    [0, 1, 2, 3].forEach(x => tracks.push(new track(new track_attrs(x))))
-// 		    // 		    for(var i = 0; i < staves; i++){
-// 		    // 			console.error("adding staff " + measure.staff.length);
-// 		    // 		    	measure.staff.push(new staff(new staff_attrs(measure.staff.length), tracks));
-// 		    // 			_addinstrument(jmsl);
-// 		    // 		    }
-// 		    // 		    var divisions = 32;
-// 		    // 		    T(mxml,
-// 		    // 			jmsl,
-// 		    // 			{
-// 		    // 			    'attributes' : undefined,
-// 		    // 			    'attributes' : (mxml,jmsl)=>{
-// 		    // 				T(mxml,
-// 		    // 				    jmsl,
-// 		    // 				    {
-// 		    // 					'divisions' : (mxml,jmsl)=>{divisions = Number(mxml)},
-// 		    // 					'key' : (mxml,jmsl)=>{
-// 		    // 					    T(mxml,
-// 		    // 						jmsl,
-// 		    // 						{
-// 		    // 						    'key-step' : undefined,
-// 		    // 						    'key-alter' : undefined,
-// 		    // 						    'key-accidental' : undefined,
-// 		    // 						    'cancel' : undefined,
-// 		    // 						    'fifths' : (mxml,jmsl)=>{
-// 		    // 							var i = Number(mxml);
-// 		    // 							//foreach(var s in measure.staff){
-// 		    // 							measure.staff.forEach(function (s) {
-// 		    // 							    if(i < 0){
-// 		    // 								set_attr(s,
-// 		    // 									 "KEYSIGTYPE",
-// 		    // 									 1);
-// 		    // 							    }else{
-// 		    // 								set_attr(s,
-// 		    // 									 "KEYSIGTYPE",
-// 		    // 									 0);
-// 		    // 							    }
-// 		    // 							    set_attr(s,
-// 		    // 								     "KEYSIGNUMACC",
-// 		    // 								     Math.abs(i));
-// 		    // 							});
-// 		    // 						    },
-// 		    // 						    'mode' : undefined,
-// 		    // 						    'key-octave' : undefined
-// 		    // 						})},
-// 		    // 					'time' : (mxml,jmsl)=>{
-// 		    // 					    var beats = 4;
-// 		    // 					    var beat_type = 4;
-// 		    // 					    T(mxml,
-// 		    // 						jmsl,
-// 		    // 						{
-// 		    // 						    'beats' : (mxml,jmsl)=>{beats = Number(mxml)},
-// 		    // 						    'beat-type' : (mxml,jmsl)=>{beat_type = Number(mxml)}
-// 		    // 						});
-// 		    // 					    measure['attributes'].TIMESIG = beats + " " + beat_type;
-// 		    // 					},
-// 		    // 					'staves' : (mxml,jmsl)=>{
-// 		    // 					    console.error("staves " + staves + " -> " + Number(mxml));
-// 		    // 					    staves = Number(mxml);
-// 		    // 					    set_attr(jmsl.jmslscoredoc.score[0],
-// 		    // 						     "STAFFS",
-// 		    // 						     staves);
-// 		    // 					    for(var i = measure.staff.length; i < staves; i++){
-// 		    // 						// measure.staff.push(new staff(new staff_attrs(measure.staff.length),
-// 		    // 						// 			     tracks));
-// 		    // 						measure.staff.push(new staff(measure.staff[0]['attributes'],
-// 		    // 									     tracks));
-// 		    // 					    }
-// 		    // 					    for(var i = jmsl.jmslscoredoc.score[0].orchestra[0].jmslscoreinstrument.length;
-// 		    // 					    	i < staves; i++){
-// 		    // 						_addinstrument(jmsl);
-// 		    // 					    }
-// 		    // 					},
-// 		    // 					'clef' : (mxml,jmsl)=>{
-// 		    // 					    var sign = "G"
-// 		    // 					    var line = "2"
-// 		    // 					    T(mxml,
-// 		    // 						jmsl,
-// 		    // 						{
-// 		    // 						    'sign' : (mxml,jmsl)=>{sign = mxml},
-// 		    // 						    'line' : (mxml,jmsl)=>{line = mxml}
-// 		    // 						})
-// 		    // 					    var clef = 0
-// 		    // 					    if(sign == "G"){
-// 		    // 						clef = 0;
-// 		    // 					    }else if(sign == "C"){
-// 		    // 						if(line == "3"){
-// 		    // 						    clef = 1; // alto
-// 		    // 						}else if(line == "4"){
-// 		    // 						    clef = 2; // tenor
-// 		    // 						}else{
-// 		    // 						    console.error("unsupported placement of clef " +
-// 		    // 								  sign + " on line " + line);
-// 		    // 						}
-// 		    // 					    }else if(sign == "F"){
-// 		    // 						clef = 3; // bass
-// 		    // 					    }else if(sign == "percussion"){
-// 		    // 						clef = 4; 
-// 		    // 					    }else{
-// 		    // 						console.error("unhandled clef: sign = " +
-// 		    // 							      sign + " line: " + line);
-// 		    // 					    }
-// 		    // 					    set_attr(get_staff(measure, -1),
-// 		    // 						     "CLEF",
-// 		    // 						     clef)
-// 		    // 					}
-// 		    // 				    })
-// 		    // 			    },
-// 		    // 			    'direction' : undefined,
-// 		    // 			    'note' : (mxml,jmsl)=>{
-// 		    // 				var track = 0;
-// 		    // 				var staff = 0;
-// 		    // 				var dims = [new note_dim(new note_dim_attrs(4, 0.0, "EventFlag")),
-// 		    // 					    new note_dim(new note_dim_attrs(5, -1.0, "originalPitch")),
-// 		    // 					    new note_dim(new note_dim_attrs(6, -1.0, "index"))]
-// 		    // 				var note = new jmsl_note(new note_attrs(), dims);
-// 		    // 				var chord = false;
-// 		    // 				T(mxml,
-// 		    // 				    jmsl,
-// 		    // 				    {
-// 		    // 					'pitch' : (mxml,jmsl)=>{
-// 		    // 					    var step;
-// 		    // 					    var alter = 0
-// 		    // 					    var octave;
-// 		    // 					    T(mxml,
-// 		    // 						jmsl,
-// 		    // 						{
-// 		    // 						    'step' : (mxml,jmsl)=>{step = mxml},
-// 		    // 						    'alter' : (mxml,jmsl)=>{alter = mxml},
-// 		    // 						    'octave' : (mxml,jmsl)=>{octave = mxml}
-// 		    // 						})
-// 		    // 					    var midipitch = note_to_midi(step, alter, octave);
-// 		    // 					    set_attr(note, "PITCH", midipitch);
-// 		    // 					    set_attr(note['dim'][1], "value", midipitch);
-// 		    // 					},
-// 		    // 					'duration' : (mxml,jmsl)=>{
-// 		    // 					    set_attr(note, "DURATION", Number(mxml) / divisions)
-// 		    // 					},
-// 		    // 					'voice' : (mxml,jmsl)=>{track = mxml - 1},
-// 		    // 					'type' : (mxml,jmsl)=>{
-// 		    // 					    set_attr(note, "NOTEDUR", notetype_to_int(mxml))
-// 		    // 					},
-// 		    // 					'stem' : undefined,
-// 		    // 					'staff' : (mxml,jmsl)=>{
-// 		    // 					    staff = Number(mxml) - 1;
-// 		    // 					},
-// 		    // 					'accidental' : undefined,
-// 		    // 					'notations' : (mxml,jmsl)=>{
-// 		    // 					    T(mxml,
-// 		    // 						jmsl,
-// 		    // 						{
-// 		    // 						    'footnote' : undefined,
-// 		    // 						    'level' : undefined,
-// 		    // 						    'accidental-mark' : undefined,
-// 		    // 						    'arpeggiate' : undefined,
-// 		    // 						    'articulations' : undefined,
-// 		    // 						    'dynamics' : undefined,
-// 		    // 						    'fermata' : undefined,
-// 		    // 						    'glissando' : undefined,
-// 		    // 						    'non-arpeggiate' : undefined,
-// 		    // 						    'ornaments' : undefined,
-// 		    // 						    'other-notation' : undefined,
-// 		    // 						    'slide' : undefined,
-// 		    // 						    'slur' : undefined,
-// 		    // 						    'technical' : undefined,
-// 		    // 						    'tied' : undefined,
-// 		    // 						    'tuplet' : undefined
-// 		    // 						})
-// 		    // 					},
-// 		    // 					'chord' : (mxml,jmsl)=>{chord = true}
-// 		    // 				    })
-// 		    // 				if(chord == true){
-// 		    // 				    var t = get_track(get_staff(measure, -1), track);
-// 		    // 				    var n = t.note[t.note.length - 1];
-// 		    // 				    if("interval" in n == false){
-// 		    // 					n.interval = new Array();
-// 		    // 				    }
-// 		    // 				    n.interval.push(note);
-
-// 		    // 				}else{
-// 		    // 				    push_note(get_track(get_staff(measure, -1), track), note);
-// 		    // 				}
-						
-// 		    // 			    }
-// 		    // 			})
-// 		    // 		}
-// 		    // 	    })
-// 		    // 	jmsl.jmslscoredoc.score[0].measure.push(measure)
-// 		    // }
-// 		})
-// 	}
-//     }
-
 var musicxml_callbacks =
     {
 	'score-timewise' : (mxml,jmsl)=>{
 	    var divisions = 32;
 	    var tempo = 60;
 	    var timesig = "4 4";
+	    var wedges = new Array(jmsl.info.nstaves);
+	    for(var i = 0; i < jmsl.info.nstaves; i++){
+		wedges[i] = "0";
+	    }
 	    T(mxml, jmsl, {
 		  'work' : function (mxml, jmsl){
 		  	T(mxml,
@@ -979,7 +736,6 @@ var musicxml_callbacks =
 				for(var i = 0; i < jmsl.info.parts[partid].nstaves; i++){
 				    __ss.push(new staff({}));
 				}
-				var wedge = "0";
 				var dyn = undefined;
 				var start_of_measure = true;
 				T(mxml, jmsl,
@@ -1160,11 +916,11 @@ var musicxml_callbacks =
 							      'attributes' : (mxml,jmsl)=>{
 								  var type = mxml.type;
 								  if(type == "stop"){
-								      wedge = "0";
+								      wedges[jmsl.info.parts[partid].staffoffset] = "0";
 								  }else if(type == "crescendo"){
-								      wedge = "cresc";
+								      wedges[jmsl.info.parts[partid].staffoffset] = "cresc";
 								  }else if(type == "diminuendo"){
-								      wedge = "decresc";
+								      wedges[jmsl.info.parts[partid].staffoffset] = "decresc";
 								  }else if(type == "continue"){
 								      // nothing
 								  }
@@ -1201,7 +957,6 @@ var musicxml_callbacks =
 				      },
 				      'note' : (mxml,jmsl)=>{
 					  var nattr = new note_attrs();
-					  nattr.WEDGE = wedge;
 					  var ndimattrs = [new note_dim_attrs(4, 0.0, "EventFlag"),
 							   new note_dim_attrs(5, -1.0, "originalPitch"),
 							   new note_dim_attrs(6, -1.0, "index")];
@@ -1553,13 +1308,7 @@ var musicxml_callbacks =
 					  }else{
 					      nattr.SLUROUT = prev_note_attr.SLUROUT;
 					  }
-					  // if(nattr.TUPLET == "stop"){
-					  //     nattr.TUPLET = 0;
-					  // }else if(nattr.TUPLET == 1){
-					  //     // all good
-					  // }else{
-					  //     nattr.TUPLET = prev_note_attr.TUPLET;
-					  // }
+					  nattr.WEDGE = wedges[jmsl.info.parts[partid].staffoffset];
 					  jmsl.info.noteattrs[jmsl.info.parts[partid].staffnums[staffnum]][tracknum] = nattr;
 					  var note = new jmsl_note(nattr, [new note_dim(ndimattrs[0]),
 									   new note_dim(ndimattrs[1]),
@@ -1601,6 +1350,7 @@ function init_jmsl_score(mxml)
     var staff = 0;
     info.partids.forEach(p => {
 	info.parts[p].staffnums = [];
+	info.parts[p].staffoffset = nstaves;
 	var ns = info.parts[p].nstaves;
 	nstaves += ns;
 	for(var i = 0; i < ns; i++){
