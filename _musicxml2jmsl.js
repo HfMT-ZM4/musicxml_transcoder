@@ -41,6 +41,7 @@ const MARK_BOWED_TREMOLO_2 = 17;
 const MARK_BOWED_TREMOLO_3 = 18; 
 const MARK_ACCIACCATURA = 19;
 const MARK_BREATH = 20;
+const MARK_INVERTED_FERMATA = 21;
 
 const NOTEHEAD_STANDARD_1 = 0;
 const NOTEHEAD_STANDARD_2 = 1;
@@ -1179,7 +1180,14 @@ var musicxml_callbacks =
 								  'sfz' : undefined
 							      })
 							  },
-		    					  'fermata' : (mxml,jmsl)=>{nattr.MARK = MARK_FERMATA;},
+		    					  'fermata' : (mxml,jmsl)=>{
+							      nattr.MARK = MARK_FERMATA;
+							      if("type" in mxml){
+								  if(mxml.type == "inverted"){
+								      nattr.MARK = MARK_inverted_FERMATA;
+								  }
+							      }
+							  },
 		    					  'glissando' : (mxml,jmsl)=>{
 							      var val = mxml.attributes.type;
 							      if(val == "start" || val == "continue"){
