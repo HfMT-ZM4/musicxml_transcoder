@@ -1182,9 +1182,9 @@ var musicxml_callbacks =
 							  },
 		    					  'fermata' : (mxml,jmsl)=>{
 							      nattr.MARK = MARK_FERMATA;
-							      if("type" in mxml){
-								  if(mxml.type == "inverted"){
-								      nattr.MARK = MARK_inverted_FERMATA;
+							      if("type" in mxml.attributes){
+								  if(mxml.attributes.type == "inverted"){
+								      nattr.MARK = MARK_INVERTED_FERMATA;
 								  }
 							      }
 							  },
