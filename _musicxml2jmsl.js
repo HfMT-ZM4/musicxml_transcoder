@@ -1011,7 +1011,11 @@ var musicxml_callbacks =
 						    if(alter < 0){
 							nattr.ACCPREF = ACC_PREFER_FLAT;
 						    }
-						    if(alter > 1 || alter < -1){
+						    if((alter > 1 || alter < -1)
+						       || (step == "C" && alter == -1)
+						       || (step == "B" && alter == 1)
+						       || (step == "E" && alter == 1)
+						       || (step == "F" && alter == -1)){
 							nattr.ALTENHARMONIC = true;
 						    }
 						},
