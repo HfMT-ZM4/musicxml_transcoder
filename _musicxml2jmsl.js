@@ -6,7 +6,7 @@ const xml2js = require('xml-js')//require('xml2js');
 const T = transcoder.transcode;
 const v = transcoder.value;
 
-const NUMTRACKSPERSTAFF = 4;
+const NUMTRACKSPERSTAFF = 6;
 
 // these constants were copied directly from the Max patch maxscore.parse2
 
@@ -681,6 +681,18 @@ function set_staff_attribute(info_obj, partid, partstaffnum, key, val)
     }
 }
 
+function get_partidx_for_partid(jmsl, partid)
+{
+    for(let i = 0; i < jmsl.info.partids.length; ++i)
+    {
+        if(jmsl.info.partids[i] == partid)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
 var musicxml_callbacks =
     {
 	    'score-timewise' : (mxml,jmsl)=>{
@@ -712,23 +724,30 @@ var musicxml_callbacks =
 		  		          }
 		  	          })
 		        },
-		        'part-list' : undefined,
-		        // 'part-list' : function (mxml, jmsl){
-		        //     T(mxml,
-		        // 	jmsl,
-		        // 	{
-		        // 	    'score-part' : (mxml,jmsl)=>{
-		        // 		T(mxml,
-		        // 		  jmsl,
-		        // 		  {
-		        // 		      'attributes' : undefined,
-		        // 		      'part-name' : (mxml,jmsl)=>{
-
-		        // 		      }
-		        // 		  })
-		        // 	    }
-		        // 	})
-		        // },
+		        'part-list' : function (mxml, jmsl){
+		            T(mxml, jmsl, {
+		        	    'score-part' : (mxml,jmsl)=>{
+                            var score_part_id = undefined;
+		        		    T(mxml, jmsl, {
+		        		        'attributes' : (mxml,jmsl)=>{
+                                    score_part_id = mxml.id;
+                                },
+		        		        'part-name' : (mxml,jmsl)=>{
+                                    // this could be hoisted out into its own function if we need
+                                    // to edit other attributes in the jmslscoreinstrument element
+                                    {
+                                        jmsl.elements[0]
+                                            .elements[0]
+                                            .elements[1]
+                                            .elements[get_partidx_for_partid(jmsl, score_part_id)]
+                                            .attributes
+                                            .Name = mxml.elements[0].text;
+                                    }
+		        		        }
+		        		    })
+		        	    }
+		        	});
+		        },
 		        'measure' : function (mxml, jmsl){
 		            if("number" in mxml.attributes){
 			            if(Number(mxml.attributes.number) == 0){
