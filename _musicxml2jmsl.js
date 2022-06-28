@@ -168,15 +168,46 @@ function score(attrs,
     // this["scoreUserBean"] = {"attributes" : {"CLASSNAME" : "com.algomusic.max.MaxScoreRenderedMessageListener"}};
 }
 
-function setScoreAnnotationAnnotationProp(jmslscore, key, val)
+function setScoreAnnotationAnnotationProp(jmsl, staff_idx, key, val)
 {
-    jmslscore.jmslscoredoc.score[0].ScoreAnnotation[0]['attributes'].Annotation[key] = val;
+    jmsl.elements[0].elements[0].elements[0].attributes.Annotation["staff-" + staff_idx][key] = val;
 }
 
-function ScoreAnnotation_attrs()
+/*
+"staff-0" :     {
+        "ledgerlines" : 1,
+        "style" : "Default",
+        "micromap" : "mM-none",
+        "clef" : "default",
+        "adjust" : 0,
+        "staffgroup" : [ 0, 2 ],
+        "abbrInstrName" : " ",
+        "instrumentNamePositionOffset" : 0
+    }
+*/
+function ScoreAnnotationAnnotation(ledgerlines = 1,
+                                   style = "Default",
+                                   micromap = "mM-none",
+                                   clef = "default",
+                                   adjust = 0,
+                                   staffgroup = [],
+                                   abbrInstrName = " ",
+                                   instrumentNamePositionOffset = 0)
+{
+    this["ledgerlines"] = ledgerlines;
+    this["style"] = style;
+    this["micromap"] = micromap;
+    this["clef"] = clef;
+    this["adjust"] = adjust;
+    this["staffgroup"] = staffgroup;
+    this["abbrInstrName"] = abbrInstrName;
+    this["instrumentNamePositionOffset"] = instrumentNamePositionOffset;
+}
+
+function ScoreAnnotation_attrs(Annotation = {})
 {
     this["CLASSNAME"] = "com.softsynth.jmsl.score.ScoreAnnotation";
-    this["Annotation"] = {};
+    this["Annotation"] = Annotation;
 }
 
 function ScoreAnnotation(attrs)
@@ -743,7 +774,13 @@ var musicxml_callbacks =
                                             .attributes
                                             .Name = mxml.elements[0].text;
                                     }
-		        		        }
+		        		        },
+                                'part-abbreviation' : (mxml,jmsl)=>{
+                                    setScoreAnnotationAnnotationProp(jmsl,
+                                                                     get_partidx_for_partid(jmsl, score_part_id),
+                                                                     "abbrInstrName",
+                                                                     mxml.elements[0].text);
+                                }
 		        		    })
 		        	    }
 		        	});
@@ -1459,8 +1496,13 @@ function init_jmsl_score(mxml)
     }
     var scoreattrs = new score_attrs();
     scoreattrs.STAFFS = nstaves;
+    var ScoreAnnotationAnnotations = {};
+    for(let i = 0; i < nstaves; ++i)
+    {
+        ScoreAnnotationAnnotations["staff-" + i] = new ScoreAnnotationAnnotation();
+    }
     var jmsl = new doc(new jmslscoredoc(new score(scoreattrs,
-						                          new ScoreAnnotation(new ScoreAnnotation_attrs()),
+						                          new ScoreAnnotation(new ScoreAnnotation_attrs(ScoreAnnotationAnnotations)),
 						                          new orchestra(new orchestra_attrs(), jmslscoreinstruments),
 						                          new mixerpanelsettings(panamppairs),
 						                          staffspacings,
