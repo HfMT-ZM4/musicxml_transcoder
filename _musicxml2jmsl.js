@@ -731,6 +731,7 @@ var musicxml_callbacks =
 	        var tempo = 60;
 	        var timesig = "4 4";
 	        var wedges = new Array(jmsl.info.nstaves);
+            var part_group = {};
 	        for(var i = 0; i < jmsl.info.nstaves; i++){
 		        wedges[i] = "0";
 	        }
@@ -759,9 +760,21 @@ var musicxml_callbacks =
 		            T(mxml, jmsl, {
 		        	    'score-part' : (mxml,jmsl)=>{
                             var score_part_id = undefined;
+                            var score_part_idx = undefined;
 		        		    T(mxml, jmsl, {
 		        		        'attributes' : (mxml,jmsl)=>{
                                     score_part_id = mxml.id;
+                                    score_part_idx = get_partidx_for_partid(jmsl, score_part_id);
+                                    let part_group_arr = [];
+                                    for(const k in part_group)
+                                    {
+                                        part_group_arr.push(Number(k) - 1);
+                                        part_group_arr.push(part_group[k]);
+                                    }
+                                    setScoreAnnotationAnnotationProp(jmsl,
+                                                                     score_part_idx,
+                                                                     "staffgroup",
+                                                                     part_group_arr);
                                 },
 		        		        'part-name' : (mxml,jmsl)=>{
                                     // this could be hoisted out into its own function if we need
@@ -770,19 +783,41 @@ var musicxml_callbacks =
                                         jmsl.elements[0]
                                             .elements[0]
                                             .elements[1]
-                                            .elements[get_partidx_for_partid(jmsl, score_part_id)]
+                                            .elements[score_part_idx]
                                             .attributes
                                             .Name = mxml.elements[0].text;
                                     }
 		        		        },
                                 'part-abbreviation' : (mxml,jmsl)=>{
                                     setScoreAnnotationAnnotationProp(jmsl,
-                                                                     get_partidx_for_partid(jmsl, score_part_id),
+                                                                     score_part_idx,
                                                                      "abbrInstrName",
                                                                      mxml.elements[0].text);
                                 }
 		        		    })
-		        	    }
+		        	    },
+                        'part-group' : (mxml,jmsl)=>{
+                            let type = undefined;
+                            let number = undefined;
+                            T(mxml, jmsl, {
+                                'attributes' : (mxml,jmsl)=>{
+                                    type = mxml.type;
+                                    number = mxml.number;
+                                    console.log("type = " + type + " number = " + number);
+                                    if(type == "start")
+                                    {
+                                        part_group[number] = undefined;
+                                    }
+                                    else
+                                    {
+                                        delete part_group[number];
+                                    }
+                                },
+                                'group-symbol' : (mxml,jmsl)=>{
+                                    part_group[number] = v(mxml);
+                                }
+                            })
+                        }
 		        	});
 		        },
 		        'measure' : function (mxml, jmsl){
