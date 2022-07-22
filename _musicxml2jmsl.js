@@ -102,11 +102,11 @@ function score_attrs()
     this["ScoreTitleVisible"] = "true";
     this["CourtesyClefsVisible"] = "false";
     this["MeasureNumberOffset"] = "1";
-    this["LeftMargin"] = "20.0";
-    this["RightMargin"] = "20.0";
-    this["TopMargin"] = "15.0";
-    this["BottomMargin"] = "15.0";
-    this["TopMarginOfFirstPage"] = "60.0";
+    this["LeftMargin"] = "20";
+    this["RightMargin"] = "20";
+    this["TopMargin"] = "15";
+    this["BottomMargin"] = "15";
+    this["TopMarginOfFirstPage"] = "60";
     this["DrawAllMeasureNumbers"] = "true";
     this["TextFontScaler"] = "1.5";
     this["ScoreSubtitleFontScaler"] = "2.0";
@@ -742,7 +742,7 @@ var musicxml_callbacks =
 	        var tempo = 60;
 	        var timesig = "4 4";
 	        var wedges = new Array(jmsl.info.nstaves);
-            var part_group = {"0" : 0};
+            var part_group = {};//{"0" : 0};
 	        for(var i = 0; i < jmsl.info.nstaves; i++){
 		        wedges[i] = "0";
 	        }
@@ -775,10 +775,10 @@ var musicxml_callbacks =
                         'page-layout' : (mxml,jmsl)=>{
                             T(mxml,jmsl,{
                                 'page-height' : (mxml,jmsl)=>{
-                                    set_score_attr(jmsl, "HEIGHT", v(mxml));
+                                    set_score_attr(jmsl, "HEIGHT", Math.round(v(mxml)));
                                 },
                                 'page-width' : (mxml,jmsl)=>{
-                                    set_score_attr(jmsl, "WIDTH", v(mxml));
+                                    set_score_attr(jmsl, "WIDTH", Math.round(v(mxml)));
                                 },
                                 'page-margins' : (mxml,jmsl)=>{
                                     if(mxml.attributes != undefined
@@ -787,16 +787,16 @@ var musicxml_callbacks =
                                         // don't support different margins for recto/verso
                                         T(mxml,jmsl,{
                                             'left-margin' : (mxml,jmsl)=>{
-                                                set_score_attr(jmsl, "LeftMargin", v(mxml));
+                                                set_score_attr(jmsl, "LeftMargin", Math.round(v(mxml)));
                                             },
                                             'right-margin' : (mxml,jmsl)=>{
-                                                set_score_attr(jmsl, "RightMargin", v(mxml));
+                                                set_score_attr(jmsl, "RightMargin", Math.round(v(mxml)));
                                             },
                                             'top-margin' : (mxml,jmsl)=>{
-                                                set_score_attr(jmsl, "TopMargin", v(mxml));
+                                                set_score_attr(jmsl, "TopMargin", Math.round(v(mxml)));
                                             },
                                             'bottom-margin' : (mxml,jmsl)=>{
-                                                set_score_attr(jmsl, "BottomMargin", v(mxml));
+                                                set_score_attr(jmsl, "BottomMargin", Math.round(v(mxml)));
                                             },
                                         })
                                     }
@@ -815,10 +815,18 @@ var musicxml_callbacks =
                                     score_part_id = mxml.id;
                                     score_part_idx = get_partidx_for_partid(jmsl, score_part_id);
                                     let part_group_arr = [];
-                                    for(const k in part_group)
+                                    if(Object.keys(part_group).length > 0)
                                     {
-                                        part_group_arr.push(Number(k));
-                                        part_group_arr.push(part_group[k]);
+                                        for(const k in part_group)
+                                        {
+                                            part_group_arr.push(Number(k));
+                                            part_group_arr.push(part_group[k]);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        part_group_arr.push(0);
+                                        part_group_arr.push(0);
                                     }
                                     setScoreAnnotationAnnotationProp(jmsl,
                                                                      score_part_idx,
