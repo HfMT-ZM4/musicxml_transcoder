@@ -1192,7 +1192,19 @@ var musicxml_callbacks =
 						                      'rest' : (mxml,jmsl)=>{
 						                          // rest is indicated by PITCH=0, so nothing to do
 						                      },
-						                      'unpitched' : undefined,
+						                      'unpitched' : (mxml,jmsl)=>{
+                                                  var step;
+                                                  var octave;
+                                                  T(mxml, jmsl,
+                                                    {
+                                                        'display-step' : (mxml,jmsl)=>{step = v(mxml)},
+                                                        'display-octave' : (mxml,jmsl)=>{octave = Number(v(mxml))}
+                                                    });
+                                                  var midipitch = note_to_midi(step, 0, octave);
+                                                  nattr.PITCH = midipitch;
+                                                  nattr.VISIBLE = false;
+                                                  ndimattrs[1].value = midipitch;
+                                              },
 						                      'duration' : (mxml,jmsl)=>{
 						                          nattr.DURATION = Number(v(mxml)) / divisions
 						                      },
