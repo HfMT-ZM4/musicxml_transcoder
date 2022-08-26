@@ -1202,7 +1202,7 @@ var musicxml_callbacks =
                                                     });
                                                   var midipitch = note_to_midi(step, 0, octave);
                                                   nattr.PITCH = midipitch;
-                                                  nattr.VISIBLE = false;
+                                                  nattr.NOTEHEADVISIBLE = false;
                                                   ndimattrs[1].value = midipitch;
                                               },
 						                      'duration' : (mxml,jmsl)=>{
